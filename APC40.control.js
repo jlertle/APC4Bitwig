@@ -17,9 +17,7 @@ host.defineController ("Akai", "APC40", "1.0", "35E958A0-345F-11E4-8C21-0800200C
 host.defineMidiPorts (1, 1);
 host.defineSysexIdentityReply ("F0 7E ?? 06 02 47 73 00 19 ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? F7");
 
-host.platformIsWindows () && host.addDeviceNameBasedDiscoveryPair (["Akai APC40"], ["Akai APC40"]);
-host.platformIsLinux () && host.addDeviceNameBasedDiscoveryPair (["Akai APC40"], ["Akai APC40"]);
-host.platformIsMac () && host.addDeviceNameBasedDiscoveryPair (["Akai APC40"], ["Akai APC40"]);
+createDeviceDiscoveryPairs ("Akai APC40");
 
 function init ()
 {

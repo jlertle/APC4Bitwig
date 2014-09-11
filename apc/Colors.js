@@ -72,3 +72,23 @@ var APC_MKII_COLOR_MAGENTA_PINK     = 56;
 var APC_MKII_COLOR_PINK_HI          = 57;
 var APC_MKII_COLOR_PINK             = 58;
 var APC_MKII_COLOR_PINK_LO          = 59;
+
+function setModelSpecificColors (product)
+{
+    switch (product)
+    {
+        case APC_PRODUCT.APC_40_MKII:
+            Scales.SCALE_COLOR_OFF          = APC_MKII_COLOR_BLACK;
+            Scales.SCALE_COLOR_OCTAVE       = APC_MKII_COLOR_OCEAN_HI;
+            Scales.SCALE_COLOR_NOTE         = APC_MKII_COLOR_WHITE;
+            Scales.SCALE_COLOR_OUT_OF_SCALE = APC_MKII_COLOR_BLACK;
+            break;
+
+        default:
+            Scales.SCALE_COLOR_OFF          = APC_COLOR_BLACK;
+            Scales.SCALE_COLOR_OCTAVE       = APC_COLOR_YELLOW;
+            Scales.SCALE_COLOR_NOTE         = APC_COLOR_BLACK;
+            Scales.SCALE_COLOR_OUT_OF_SCALE = APC_COLOR_BLACK;
+            break;
+    }
+}

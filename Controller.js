@@ -9,6 +9,7 @@ function Controller (product)
     input.init ();
     
     var scales = new Scales (36, 100, 8, 8);
+    setModelSpecificColors (product);
     this.model = new Model (null, scales, 8, 5, 8);
 /* TODO    this.model.getTrackBank ().addTrackSelectionListener (doObject (this, function (index, isSelected)
     {
