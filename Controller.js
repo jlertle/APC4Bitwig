@@ -11,12 +11,11 @@ function Controller (product)
     var scales = new Scales (36, 100, 8, 8);
     setModelSpecificColors (product);
     this.model = new Model (null, scales, 8, 5, 8);
-/* TODO    this.model.getTrackBank ().addTrackSelectionListener (doObject (this, function (index, isSelected)
+    this.model.getTrackBank ().addTrackSelectionListener (doObject (this, function (index, isSelected)
     {
         if (this.surface.isActiveView (VIEW_PLAY))
             this.surface.getActiveView ().updateNoteMapping ();
     }));
-*/
     
     this.surface = new APC (output, input, product);
     for (var i = 0; i < 8; i++)
@@ -35,11 +34,10 @@ function Controller (product)
         this.updateMode (newMode);
     }));
     
-
-// TODO  this.surface.addView (VIEW_PLAY, new PlayView (this.model));
+    this.surface.addView (VIEW_PLAY, new PlayView (this.model));
     this.surface.addView (VIEW_SESSION, new SessionView (this.model));
-// TODO  this.surface.addView (VIEW_SEQUENCER, new SequencerView (this.model));
-// TODO  this.surface.addView (VIEW_DRUM, new DrumView (this.model));
+    this.surface.addView (VIEW_SEQUENCER, new SequencerView (this.model));
+    this.surface.addView (VIEW_DRUM, new DrumView (this.model));
     
     this.surface.setActiveView (VIEW_SESSION);
     this.surface.setPendingMode (MODE_PAN);

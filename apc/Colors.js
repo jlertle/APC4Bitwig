@@ -82,6 +82,30 @@ function setModelSpecificColors (product)
             Scales.SCALE_COLOR_OCTAVE       = APC_MKII_COLOR_OCEAN_HI;
             Scales.SCALE_COLOR_NOTE         = APC_MKII_COLOR_WHITE;
             Scales.SCALE_COLOR_OUT_OF_SCALE = APC_MKII_COLOR_BLACK;
+
+            AbstractSessionView.CLIP_COLOR_IS_RECORDING        = { color: APC_MKII_COLOR_RED_HI,   blink: APC_MKII_COLOR_RED_HI,   fast: false };
+            AbstractSessionView.CLIP_COLOR_IS_RECORDING_QUEUED = { color: APC_MKII_COLOR_RED_HI,   blink: APC_MKII_COLOR_RED_HI,   fast: true  };
+            AbstractSessionView.CLIP_COLOR_IS_PLAYING          = { color: APC_MKII_COLOR_GREEN_HI, blink: APC_MKII_COLOR_GREEN_HI, fast: false };
+            AbstractSessionView.CLIP_COLOR_IS_PLAYING_QUEUED   = { color: APC_MKII_COLOR_GREEN_HI, blink: APC_MKII_COLOR_GREEN_HI, fast: true  };
+            AbstractSessionView.CLIP_COLOR_HAS_CONTENT         = { color: APC_MKII_COLOR_AMBER,    blink: null,                    fast: false };
+            AbstractSessionView.CLIP_COLOR_NO_CONTENT          = { color: APC_MKII_COLOR_BLACK,    blink: null,                    fast: false };
+            AbstractSessionView.CLIP_COLOR_RECORDING_ARMED     = { color: APC_MKII_COLOR_RED_LO,   blink: null,                    fast: false };
+            AbstractSessionView.USE_CLIP_COLOR                 = true;
+ 
+            AbstractSequencerView.COLOR_SELECTED_RESOLUTION_OFF = APC_MKII_COLOR_BLACK;
+            AbstractSequencerView.COLOR_SELECTED_RESOLUTION_ON  = APC_MKII_COLOR_GREEN_HI;
+            AbstractSequencerView.COLOR_STEP_HILITE_NO_CONTENT  = APC_MKII_COLOR_GREEN_HI;
+            AbstractSequencerView.COLOR_STEP_HILITE_CONTENT     = APC_MKII_COLOR_GREEN_LO;
+            AbstractSequencerView.COLOR_NO_CONTENT              = APC_MKII_COLOR_BLACK;
+            AbstractSequencerView.COLOR_CONTENT                 = APC_MKII_COLOR_BLUE_HI;
+ 
+            DrumView.COLOR_RECORD      = APC_MKII_COLOR_RED_HI;
+            DrumView.COLOR_PLAY        = APC_MKII_COLOR_GREEN_HI;
+            DrumView.COLOR_SELECTED    = APC_MKII_COLOR_BLUE_HI;
+            DrumView.COLOR_MUTED       = APC_MKII_COLOR_AMBER_LO;
+            DrumView.COLOR_SOLO        = APC_MKII_COLOR_BLUE_LO;
+            DrumView.COLOR_HAS_CONTENT = APC_MKII_COLOR_YELLOW_HI;
+            DrumView.COLOR_NO_CONTENT  = APC_MKII_COLOR_YELLOW_LO;
             break;
 
         default:
@@ -89,6 +113,31 @@ function setModelSpecificColors (product)
             Scales.SCALE_COLOR_OCTAVE       = APC_COLOR_YELLOW;
             Scales.SCALE_COLOR_NOTE         = APC_COLOR_BLACK;
             Scales.SCALE_COLOR_OUT_OF_SCALE = APC_COLOR_BLACK;
+
+            AbstractSessionView.CLIP_COLOR_IS_RECORDING        = { color: APC_COLOR_RED,    blink: null,                  fast: false };
+            AbstractSessionView.CLIP_COLOR_IS_RECORDING_QUEUED = { color: APC_COLOR_RED,    blink: APC_COLOR_RED_BLINK,   fast: false };
+            AbstractSessionView.CLIP_COLOR_IS_PLAYING          = { color: APC_COLOR_GREEN,  blink: null,                  fast: false };
+            AbstractSessionView.CLIP_COLOR_IS_PLAYING_QUEUED   = { color: APC_COLOR_GREEN,  blink: APC_COLOR_GREEN_BLINK, fast: false };
+            AbstractSessionView.CLIP_COLOR_HAS_CONTENT         = { color: APC_COLOR_YELLOW, blink: null,                  fast: false };
+            AbstractSessionView.CLIP_COLOR_NO_CONTENT          = { color: APC_COLOR_BLACK,  blink: null,                  fast: false };
+            AbstractSessionView.CLIP_COLOR_RECORDING_ARMED     = { color: APC_COLOR_BLACK,  blink: null,                  fast: false };
+            AbstractSessionView.USE_CLIP_COLOR                 = false;
+            
+            AbstractSequencerView.COLOR_SELECTED_RESOLUTION_OFF = APC_COLOR_BLACK;
+            AbstractSequencerView.COLOR_SELECTED_RESOLUTION_ON  = APC_COLOR_GREEN;
+            AbstractSequencerView.COLOR_STEP_HILITE_NO_CONTENT  = APC_COLOR_GREEN;
+            AbstractSequencerView.COLOR_STEP_HILITE_CONTENT     = APC_COLOR_GREEN;
+            AbstractSequencerView.COLOR_NO_CONTENT              = APC_COLOR_BLACK;
+            AbstractSequencerView.COLOR_CONTENT                 = APC_COLOR_RED;
+            
+            DrumView.COLOR_RECORD      = APC_COLOR_RED;
+            DrumView.COLOR_PLAY        = APC_COLOR_GREEN;
+            DrumView.COLOR_SELECTED    = APC_COLOR_YELLOW_BLINK;
+            DrumView.COLOR_MUTED       = APC_COLOR_BLACK;
+            DrumView.COLOR_SOLO        = APC_COLOR_YELLOW;
+            DrumView.COLOR_HAS_CONTENT = APC_COLOR_YELLOW;
+            DrumView.COLOR_NO_CONTENT  = APC_COLOR_BLACK;
+            
             break;
     }
 }

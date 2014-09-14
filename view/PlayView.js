@@ -1,20 +1,17 @@
 // Written by Jürgen Moßgraber - mossgrabers.de
+//            Michael Schmalle - teotigraphix.com
 // (c) 2014
 // Licensed under LGPLv3 - http://www.gnu.org/licenses/lgpl-3.0.txt
 
 function PlayView (model)
 {
-    BaseView.call (this, model);
+    AbstractView.call (this, model);
     this.scales = model.getScales ();
     this.noteMap = this.scales.getEmptyMatrix ();
     this.pressedKeys = initArray (0, 128);
     this.defaultVelocity = [];
     for (var i = 0; i < 128; i++)
         this.defaultVelocity.push (i);
-    Config.addPropertyListener (Config.FIXED_ACCENT_VALUE, doObject (this, function ()
-    {
-        this.initMaxVelocity ();
-    }));
     var tb = model.getTrackBank ();
     tb.addNoteListener (doObject (this, function (pressed, note, velocity)
     {
@@ -32,7 +29,7 @@ function PlayView (model)
 
     this.scrollerInterval = Config.trackScrollInterval;
 }
-PlayView.prototype = new BaseView ();
+PlayView.prototype = new AbstractView ();
 
 PlayView.prototype.updateNoteMapping = function ()
 {
@@ -44,36 +41,33 @@ PlayView.prototype.updateNoteMapping = function ()
 
 PlayView.prototype.onActivate = function ()
 {
-    BaseView.prototype.onActivate.call (this);
+    AbstractView.prototype.onActivate.call (this);
 
-    this.surface.setButton (PUSH_BUTTON_NOTE, PUSH_BUTTON_STATE_HI);
-    this.surface.setButton (PUSH_BUTTON_SESSION, PUSH_BUTTON_STATE_ON);
-    this.surface.setButton (PUSH_BUTTON_ACCENT, Config.accentActive ? PUSH_BUTTON_STATE_HI : PUSH_BUTTON_STATE_ON);
     this.model.getCurrentTrackBank ().setIndication (false);
     this.updateSceneButtons ();
     this.initMaxVelocity ();
+
+    this.surface.setButton (APC_BUTTON_SCENE_LAUNCH_1, APC_BUTTON_STATE_ON);
+    this.surface.setButton (APC_BUTTON_SCENE_LAUNCH_2, APC_BUTTON_STATE_ON);
+    this.surface.setButton (APC_BUTTON_SCENE_LAUNCH_4, APC_BUTTON_STATE_ON);
+    this.surface.setButton (APC_BUTTON_SCENE_LAUNCH_5, APC_BUTTON_STATE_ON);
 };
 
 PlayView.prototype.updateSceneButtons = function (buttonID)
 {
-    for (var i = 0; i < 8; i++)
-        this.surface.setButton (PUSH_BUTTON_SCENE1 + i, PUSH_COLOR_BLACK);
+    for (var i = 0; i < 5; i++)
+        this.surface.setButton (APC_BUTTON_SCENE_LAUNCH_1 + i, APC_COLOR_BLACK);
 };
 
-PlayView.prototype.usesButton = function (buttonID)
+PlayView.prototype.updateArrows = function ()
 {
-    switch (buttonID)
-    {
-        case PUSH_BUTTON_REPEAT:
-        case PUSH_BUTTON_SELECT:
-        case PUSH_BUTTON_ADD_EFFECT:
-        case PUSH_BUTTON_ADD_TRACK:
-        case PUSH_BUTTON_USER_MODE:
-        case PUSH_BUTTON_DUPLICATE:
-        case PUSH_BUTTON_CLIP:
-            return false;
-    }
-    return true;
+    var tb = this.model.getCurrentTrackBank ();
+    var cd = this.model.getCursorDevice ();
+    var sel = tb.getSelectedTrack ();
+    this.canScrollLeft = sel != null && sel.index > 0 || tb.canScrollTracksUp ();
+    this.canScrollRight = sel != null && sel.index < 7 || tb.canScrollTracksDown ();
+
+    AbstractView.prototype.updateArrows.call (this);
 };
 
 PlayView.prototype.drawGrid = function ()
@@ -81,13 +75,37 @@ PlayView.prototype.drawGrid = function ()
     var t = this.model.getCurrentTrackBank ().getSelectedTrack ();
     var isKeyboardEnabled = t != null && t.canHoldNotes;
     var isRecording = this.model.hasRecordingState ();
-    for (var i = 36; i < 100; i++)
+
+    for (var i = 36; i < 76; i++)
     {
         this.surface.pads.light (i, isKeyboardEnabled ? (this.pressedKeys[i] > 0 ?
-            (isRecording ? PUSH_COLOR2_RED_HI : PUSH_COLOR2_GREEN_HI) :
-            this.scales.getColor (this.noteMap, i)) : PUSH_COLOR2_BLACK);
-        this.surface.pads.blink (i, PUSH_COLOR2_BLACK);
+            (isRecording ? AbstractSessionView.CLIP_COLOR_IS_RECORDING.color : AbstractSessionView.CLIP_COLOR_IS_PLAYING.color) :
+            this.scales.getColor (this.noteMap, i)) : APC_COLOR_BLACK, null, false);
     }
+};
+
+PlayView.prototype.onScene = function (scene, event)
+{
+    if (!event.isDown ())
+        return;
+    switch (scene)
+    {
+        case 0:
+            this.scales.nextScale ();
+            displayNotification (this.scales.getName (this.scales.getSelectedScale ()));
+            break;
+        case 1:
+            this.scales.prevScale ();
+            displayNotification (this.scales.getName (this.scales.getSelectedScale ()));
+            break;
+        case 3:
+            this.onOctaveUp (event);
+            break;
+        case 4:
+            this.onOctaveDown (event);
+            break;
+    }
+    this.updateNoteMapping ();
 };
 
 PlayView.prototype.onGridNote = function (note, velocity)
@@ -95,6 +113,9 @@ PlayView.prototype.onGridNote = function (note, velocity)
     var t = this.model.getCurrentTrackBank ().getSelectedTrack ();
     if (t == null || !t.canHoldNotes)
         return;
+
+    this.surface.sendMidiEvent (0x90, this.noteMap[note], velocity);
+        
     // Mark selected notes
     for (var i = 0; i < 128; i++)
     {
@@ -105,22 +126,16 @@ PlayView.prototype.onGridNote = function (note, velocity)
 
 PlayView.prototype.onOctaveDown = function (event)
 {
-    if (!event.isDown ())
-        return;
     this.clearPressedKeys ();
     this.scales.decOctave ();
-    this.updateNoteMapping ();
-    this.surface.getDisplay ().showNotification ('       ' + this.scales.getRangeText ());
+    displayNotification (this.scales.getRangeText ());
 };
 
 PlayView.prototype.onOctaveUp = function (event)
 {
-    if (!event.isDown ())
-        return;
     this.clearPressedKeys ();
     this.scales.incOctave ();
-    this.updateNoteMapping ();
-    this.surface.getDisplay ().showNotification ('       ' + this.scales.getRangeText ());
+    displayNotification (this.scales.getRangeText ());
 };
 
 PlayView.prototype.scrollUp = function (event)
@@ -141,48 +156,38 @@ PlayView.prototype.scrollDown = function (event)
 
 PlayView.prototype.scrollLeft = function (event)
 {
-    if (this.surface.getCurrentMode () == MODE_DEVICE || this.surface.getCurrentMode () == MODE_PRESET)
-        this.model.getCursorDevice ().selectPrevious ();
-    else
+    var tb = this.model.getCurrentTrackBank ();
+    var sel = tb.getSelectedTrack ();
+    var index = sel == null ? 0 : sel.index - 1;
+    if (index == -1)
     {
-        var tb = this.model.getCurrentTrackBank ();
-        var sel = tb.getSelectedTrack ();
-        var index = sel == null ? 0 : sel.index - 1;
-        if (index == -1)
-        {
-            if (!tb.canScrollTracksUp ())
-                return;
-            tb.scrollTracksPageUp ();
-            scheduleTask (doObject (this, this.selectTrack), [7], 75);
+        if (!tb.canScrollTracksUp ())
             return;
-        }
-        this.selectTrack (index);
+        tb.scrollTracksPageUp ();
+        scheduleTask (doObject (this, this.selectTrack), [7], 75);
+        return;
     }
+    this.selectTrack (index);
 };
 
 PlayView.prototype.scrollRight = function (event)
 {
-    if (this.surface.getCurrentMode () == MODE_DEVICE || this.surface.getCurrentMode () == MODE_PRESET)
-        this.model.getCursorDevice ().selectNext ();
-    else
+    var tb = this.model.getCurrentTrackBank ();
+    var sel = tb.getSelectedTrack ();
+    var index = sel == null ? 0 : sel.index + 1;
+    if (index == 8)
     {
-        var tb = this.model.getCurrentTrackBank ();
-        var sel = tb.getSelectedTrack ();
-        var index = sel == null ? 0 : sel.index + 1;
-        if (index == 8)
-        {
-            if (!tb.canScrollTracksDown ())
-                return;
-            tb.scrollTracksPageDown ();
-            scheduleTask (doObject (this, this.selectTrack), [0], 75);
-        }
-        this.selectTrack (index);
+        if (!tb.canScrollTracksDown ())
+            return;
+        tb.scrollTracksPageDown ();
+        scheduleTask (doObject (this, this.selectTrack), [0], 75);
     }
+    this.selectTrack (index);
 };
 
 PlayView.prototype.onAccent = function (event)
 {
-    BaseView.prototype.onAccent.call (this, event);
+    AbstractView.prototype.onAccent.call (this, event);
     if (event.isUp ())
         this.initMaxVelocity ();
 };
@@ -198,4 +203,4 @@ PlayView.prototype.clearPressedKeys = function ()
 {
     for (var i = 0; i < 128; i++)
         this.pressedKeys[i] = 0;
-}
+};

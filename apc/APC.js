@@ -216,6 +216,7 @@ APC.prototype.handleMidi = function (status, data1, data2)
 {
     var code = status & 0xF0;
     var channel = status & 0xF;
+
     switch (code)
     {
         case 0x80:
@@ -237,13 +238,14 @@ APC.prototype.handleButtons = function (channel, note, value)
     if (this.isButton (note))
     {
         this.buttonStates[note] = value > 0 ? ButtonEvent.DOWN : ButtonEvent.UP;
+        /* No long presses for APCs
         if (this.buttonStates[note] == ButtonEvent.DOWN)
         {
             scheduleTask (function (object, buttonID)
             {
                 object.checkButtonState (buttonID);
             }, [this, note], AbstractControlSurface.buttonStateInterval);
-        }
+        }*/
 
         // If consumed flag is set ignore the UP event
         if (this.buttonStates[note] == ButtonEvent.UP && this.buttonConsumed[note])
@@ -268,7 +270,7 @@ APC.prototype.handleEvent = function (note, value, channel)
     // Clip pads on mkII
     if (note < 40)
     {
-        view.onGridNote (note % 8, 4 - Math.floor (note / 8), new ButtonEvent (value > 0 ? ButtonEvent.DOWN : ButtonEvent.UP));
+        view.onGridNote (36 + note, value);
         return;
     }
         
@@ -464,7 +466,16 @@ APC.prototype.handleEvent = function (note, value, channel)
         case APC_BUTTON_SCENE_LAUNCH_3:
         case APC_BUTTON_SCENE_LAUNCH_4:
         case APC_BUTTON_SCENE_LAUNCH_5:
-            view.onScene (note - APC_BUTTON_SCENE_LAUNCH_1, event);
+            if (this.isShiftPressed ())
+            {
+                if (!event.isDown ())
+                    return;
+                this.setActiveView (VIEW_SESSION + note - APC_BUTTON_SCENE_LAUNCH_1);
+                // Refresh mode button lights
+                this.setPendingMode (this.getCurrentMode ());
+            }
+            else
+                view.onScene (note - APC_BUTTON_SCENE_LAUNCH_1, event);
             break;
             
         case APC_BUTTON_CLIP_LAUNCH_1:
@@ -472,7 +483,7 @@ APC.prototype.handleEvent = function (note, value, channel)
         case APC_BUTTON_CLIP_LAUNCH_3:
         case APC_BUTTON_CLIP_LAUNCH_4:
         case APC_BUTTON_CLIP_LAUNCH_5:
-            view.onGridNote (channel, note - APC_BUTTON_CLIP_LAUNCH_1, event)
+            view.onGridNote (36 + (4 - (note - APC_BUTTON_CLIP_LAUNCH_1)) * 8 + channel, value);
             break;
             
         case APC_BUTTON_STOP_ALL_CLIPS:

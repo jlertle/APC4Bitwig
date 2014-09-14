@@ -12,10 +12,22 @@ function Grid (output, isMkII)
     this.buttonColors = initArray ([ APC_COLOR_BLACK, false, false], this.arraySize);
 }
 
-Grid.prototype.light = function (x, y, color, blink, fast)
+Grid.prototype.light = function (index, color, blinkColor, fast)
 {
-    this.buttonColors[y * 8 + x] = [ color, blink, fast ];
+    index = index - 36;
+    index = (4 - Math.floor (index / 8)) * 8 + (index % 8);
+    this.setLight (index, color, blinkColor, fast);
 };
+
+Grid.prototype.lightEx = function (x, y, color, blinkColor, fast)
+{
+    this.setLight (y * 8 + x, color, blinkColor, fast);
+};
+
+Grid.prototype.setLight = function (index, color, blinkColor, fast)
+{
+    this.buttonColors[index] = [ color, blinkColor, fast ];
+}
 
 Grid.prototype.flush = function ()
 {
@@ -27,11 +39,13 @@ Grid.prototype.flush = function ()
         this.currentButtonColors[i] = this.buttonColors[i];
         if (this.isMkII)
         {
-            var pos = (4 - Math.floor (i / 8)) * 8 + (i % 8)
-            this.output.sendNoteEx (this.buttonColors[i][1] ? 10 : (this.buttonColors[i][2] ? 14 : 0), pos, this.buttonColors[i][0]);
+            var pos = (4 - Math.floor (i / 8)) * 8 + (i % 8);
+            this.output.sendNoteEx (0, pos, this.buttonColors[i][0]);
+            if (this.buttonColors[i][1] != null)
+                this.output.sendNoteEx (this.buttonColors[i][2] ? 14 : 10, pos, this.buttonColors[i][1]);
         }
         else
-            this.output.sendNoteEx (i % 8, APC_BUTTON_CLIP_LAUNCH_1 + Math.floor (i / 8), this.buttonColors[i][0]);
+            this.output.sendNoteEx (i % 8, APC_BUTTON_CLIP_LAUNCH_1 + Math.floor (i / 8), this.buttonColors[i][1] == null ? this.buttonColors[i][0] : this.buttonColors[i][1]);
         baseChanged = true;
     }
 };
@@ -41,7 +55,7 @@ Grid.prototype.turnOff = function ()
     for (var i = 0; i < this.arraySize; i++)
     {
         this.buttonColors[i][0] = APC_COLOR_BLACK;
-        this.buttonColors[i][1] = false;
+        this.buttonColors[i][1] = null;
         this.buttonColors[i][2] = false;
     }
     this.flush ();

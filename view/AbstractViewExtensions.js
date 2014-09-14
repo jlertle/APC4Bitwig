@@ -5,22 +5,13 @@
 CLIP_LENGTHS = [ '1 Beat', '2 Beats', '1 Bar', '2 Bars', '4 Bars', '8 Bars', '16 Bars', '32 Bars' ];
 CLIP_LENGTHS_INDICES = [ 6, 5, 4, 3, 2, 1, 0, 7 ];
 
-function BaseView (model)
-{
-    AbstractView.call (this, model);
+AbstractView.prototype.stopPressed = false;
+AbstractView.prototype.isTempoInc = false;
+AbstractView.prototype.isTempoDec = false;
+AbstractView.prototype.isKnobMoving = false;
+AbstractView.prototype.moveStartTime = 0;
 
-    this.stopPressed = false;
-    
-    this.isTempoInc = false;
-    this.isTempoDec = false;
-    
-    this.isKnobMoving = false;
-    this.moveStartTime = 0;
-}
-BaseView.prototype = new AbstractView ();
-BaseView.prototype.constructor = BaseView;
-
-BaseView.prototype.usesButton = function (buttonID)
+AbstractView.prototype.usesButton = function (buttonID)
 {
     switch (buttonID)
     {
@@ -41,12 +32,11 @@ BaseView.prototype.usesButton = function (buttonID)
     return true;
 };
 
-
 //--------------------------------------
 // Transport
 //--------------------------------------
 
-BaseView.prototype.onPlay = function (event)
+AbstractView.prototype.onPlay = function (event)
 {
     if (!event.isDown ())
         return;
@@ -67,13 +57,13 @@ BaseView.prototype.onPlay = function (event)
     }
 };
 
-BaseView.prototype.onStop = function (event)
+AbstractView.prototype.onStop = function (event)
 {
     if (event.isDown ())
         this.model.getTransport ().stop ();
 };
 
-BaseView.prototype.onRecord = function (event)
+AbstractView.prototype.onRecord = function (event)
 {
     if (!event.isDown ())
         return;
@@ -88,12 +78,12 @@ BaseView.prototype.onRecord = function (event)
 // Navigation
 //--------------------------------------
 
-BaseView.prototype.onTempo = function (increase)
+AbstractView.prototype.onTempo = function (increase)
 {
     this.model.getTransport ().changeTempo (increase, this.surface.isShiftPressed ());
 };
 
-BaseView.prototype.onNudge = function (isPlus, event)
+AbstractView.prototype.onNudge = function (isPlus, event)
 {
     if (isPlus)
     {
@@ -112,7 +102,7 @@ BaseView.prototype.onNudge = function (isPlus, event)
     this.doChangeTempo ();
 };
 
-BaseView.prototype.doChangeTempo = function ()
+AbstractView.prototype.doChangeTempo = function ()
 {
     if (!this.isTempoInc && !this.isTempoDec)
         return;
@@ -123,18 +113,18 @@ BaseView.prototype.doChangeTempo = function ()
     }), null, 200);
 };
 
-BaseView.prototype.onCueLevel = function (value)
+AbstractView.prototype.onCueLevel = function (value)
 {
     this.model.getTransport ().changePosition (value < 65, this.surface.isShiftPressed ());
 };
 
-BaseView.prototype.onShift = function (event) {};
+AbstractView.prototype.onShift = function (event) {};
 
 //--------------------------------------
 // Track
 //--------------------------------------
 
-BaseView.prototype.onSelectTrack = function (index, event)
+AbstractView.prototype.onSelectTrack = function (index, event)
 {
     if (!event.isDown ())
         return;
@@ -151,36 +141,36 @@ BaseView.prototype.onSelectTrack = function (index, event)
         this.model.getCurrentTrackBank ().select (index);
 };
 
-BaseView.prototype.onActivator = function (index, event)
+AbstractView.prototype.onActivator = function (index, event)
 {
     if (event.isDown ())
         this.model.getCurrentTrackBank ().toggleMute (index);
 };
 
-BaseView.prototype.onSolo = function (index, event)
+AbstractView.prototype.onSolo = function (index, event)
 {
     if (event.isDown ())
         this.model.getCurrentTrackBank ().toggleSolo (index);
 };
 
-BaseView.prototype.onRecArm = function (index, event)
+AbstractView.prototype.onRecArm = function (index, event)
 {
     if (event.isDown ())
         this.model.getCurrentTrackBank ().toggleArm (index);
 };
 
-BaseView.prototype.onVolume = function (index, value)
+AbstractView.prototype.onVolume = function (index, value)
 {
     this.model.getCurrentTrackBank ().setVolume (index, value);
 };
 
-BaseView.prototype.onPan = function (event)
+AbstractView.prototype.onPan = function (event)
 {
     if (event.isDown ())
         this.surface.setPendingMode (MODE_PAN);
 };
      
-BaseView.prototype.onSend = function (sendIndex, event)
+AbstractView.prototype.onSend = function (sendIndex, event)
 {
     if (!event.isDown ())
         return;
@@ -191,7 +181,7 @@ BaseView.prototype.onSend = function (sendIndex, event)
     this.surface.setPendingMode (MODE_SEND1 + (sendIndex + (this.surface.isShiftPressed () ? 3 : 0)));
 };
 
-BaseView.prototype.onUser = function (event)
+AbstractView.prototype.onUser = function (event)
 {
     if (!event.isDown ())
         return;
@@ -199,18 +189,18 @@ BaseView.prototype.onUser = function (event)
     this.surface.setPendingMode (MODE_MACRO);
 };
 
-BaseView.prototype.onMasterVolume = function (value)
+AbstractView.prototype.onMasterVolume = function (value)
 {
     this.model.getMasterTrack ().setVolume (value);
 };
 
-BaseView.prototype.onMaster = function (event)
+AbstractView.prototype.onMaster = function (event)
 {
     if (event.isDown ())
         this.model.getMasterTrack ().select ();
 };
 
-BaseView.prototype.onBank = function (event)
+AbstractView.prototype.onBank = function (event)
 {
     if (!event.isDown ())
         return;
@@ -228,13 +218,13 @@ BaseView.prototype.onBank = function (event)
 // Device
 //--------------------------------------
 
-BaseView.prototype.onDeviceOnOff = function (event)
+AbstractView.prototype.onDeviceOnOff = function (event)
 {
     if (event.isDown ())
         this.model.getCursorDevice ().toggleEnabledState ();
 };
 
-BaseView.prototype.onDeviceValueKnob = function (index, value)
+AbstractView.prototype.onDeviceValueKnob = function (index, value)
 {
     var cd = this.model.getCursorDevice ();
     var param = cd.getFXParam (index);
@@ -249,7 +239,7 @@ BaseView.prototype.onDeviceValueKnob = function (index, value)
     this.startCheckKnobMovement ();
 };
 
-BaseView.prototype.onDeviceLeft = function (event)
+AbstractView.prototype.onDeviceLeft = function (event)
 {
     if (!event.isDown ())
         return;
@@ -260,7 +250,7 @@ BaseView.prototype.onDeviceLeft = function (event)
         this.model.getCursorDevice ().selectPrevious ();
 };
 
-BaseView.prototype.onDeviceRight = function (event)
+AbstractView.prototype.onDeviceRight = function (event)
 {
     if (!event.isDown ())
         return;
@@ -270,7 +260,7 @@ BaseView.prototype.onDeviceRight = function (event)
         this.model.getCursorDevice ().selectNext ();
 };
 
-BaseView.prototype.onClipTrack = function (event)
+AbstractView.prototype.onClipTrack = function (event)
 {
     if (event.isDown ())
         this.model.getApplication ().toggleDevices ();
@@ -281,31 +271,31 @@ BaseView.prototype.onClipTrack = function (event)
 // Further buttons
 //--------------------------------------
 
-BaseView.prototype.onTapTempo = function (event)
+AbstractView.prototype.onTapTempo = function (event)
 {
     if (event.isDown ())
         this.model.getTransport ().tapTempo ();
 };
 
-BaseView.prototype.onMetronome = function (event)
+AbstractView.prototype.onMetronome = function (event)
 {
     if (event.isDown ())
         this.model.getTransport ().toggleClick ();
 };
 
-BaseView.prototype.onMidiOverdub = function (event)
+AbstractView.prototype.onMidiOverdub = function (event)
 {
     if (event.isDown ())
         this.model.getTransport ().toggleLauncherOverdub ();
 };
 
-BaseView.prototype.onQuantize = function (event)
+AbstractView.prototype.onQuantize = function (event)
 {
     if (event.isDown ())
         this.model.getApplication ().quantize ();
 };
 
-BaseView.prototype.onDetailView = function (event)
+AbstractView.prototype.onDetailView = function (event)
 {
     if (!event.isDown ())
         return;
@@ -329,13 +319,13 @@ BaseView.prototype.onDetailView = function (event)
 // Clips
 //--------------------------------------
 
-BaseView.prototype.onStopAllClips = function (event)
+AbstractView.prototype.onStopAllClips = function (event)
 {
     if (event.isDown ())
         this.model.getCurrentTrackBank ().getClipLauncherScenes ().stop ();
 };
 
-BaseView.prototype.onClipStop = function (channel, event)
+AbstractView.prototype.onClipStop = function (channel, event)
 {
     if (event.isDown ())
     {
@@ -353,9 +343,9 @@ BaseView.prototype.onClipStop = function (channel, event)
 // Footswitch
 //--------------------------------------
 
-BaseView.prototype.onFootswitch1 = function (value) {};
+AbstractView.prototype.onFootswitch1 = function (value) {};
 
-BaseView.prototype.onFootswitch2 = function (value)
+AbstractView.prototype.onFootswitch2 = function (value)
 {
     if (value != 127)
         return;
@@ -390,7 +380,7 @@ BaseView.prototype.onFootswitch2 = function (value)
 // Protected API
 //--------------------------------------
 
-BaseView.prototype.getSelectedSlot = function (track)
+AbstractView.prototype.getSelectedSlot = function (track)
 {
     for (var i = 0; i < track.slots.length; i++)
         if (track.slots[i].isSelected)
@@ -398,7 +388,7 @@ BaseView.prototype.getSelectedSlot = function (track)
     return -1;
 };
 
-BaseView.prototype.checkKnobMovement = function ()
+AbstractView.prototype.checkKnobMovement = function ()
 {
     if (!this.isKnobMoving)
         return;
@@ -408,7 +398,7 @@ BaseView.prototype.checkKnobMovement = function ()
         this.startCheckKnobMovement ();
 };
 
-BaseView.prototype.startCheckKnobMovement = function ()
+AbstractView.prototype.startCheckKnobMovement = function ()
 {
     scheduleTask (doObject (this, function ()
     {
