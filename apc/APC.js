@@ -21,6 +21,7 @@ var APC_BUTTON_DETAIL_VIEW     = 0x3E;
 var APC_BUTTON_REC_QUANT       = 0x3F;
 var APC_BUTTON_MIDI_OVERDUB    = 0x40;
 var APC_BUTTON_METRONOME       = 0x41;
+var APC_BUTTON_A_B             = 0x42;  // mkII
 var APC_BUTTON_MASTER          = 0x50;
 var APC_BUTTON_STOP_ALL_CLIPS  = 0x51;
 var APC_BUTTON_SCENE_LAUNCH_1  = 0x52;
@@ -109,8 +110,9 @@ var APC_BUTTONS_ALL =
     APC_BUTTON_DEVICE_RIGHT,
     APC_BUTTON_DETAIL_VIEW,
     APC_BUTTON_REC_QUANT,
-    APC_BUTTON_MIDI_OVERDUB ,
+    APC_BUTTON_MIDI_OVERDUB,
     APC_BUTTON_METRONOME,
+    APC_BUTTON_A_B,
     APC_BUTTON_MASTER,
     APC_BUTTON_STOP_ALL_CLIPS,
     APC_BUTTON_SCENE_LAUNCH_1,
@@ -345,9 +347,16 @@ APC.prototype.handleEvent = function (note, value, channel)
             break;
             
         case APC_BUTTON_ACTIVATOR:
-            view.onActivator (channel, event);
+            if (this.isShiftPressed ())
+                view.onAorB (channel, event);
+            else
+                view.onActivator (channel, event);
             break;
             
+        case APC_BUTTON_A_B:
+            view.onAorB (channel, event);
+            break;
+
         case APC_BUTTON_SOLO:
             view.onSolo (channel, event);
             break;
@@ -355,7 +364,7 @@ APC.prototype.handleEvent = function (note, value, channel)
         case APC_BUTTON_RECORD_ARM:
             view.onRecArm (channel, event);
             break;
-
+            
         case APC_BUTTON_PAN:
             if (this.isShiftPressed ())
                 view.onUser (event);
@@ -514,6 +523,10 @@ APC.prototype.handleCC = function (channel, cc, value)
 
         case APC_KNOB_MASTER_LEVEL:
             view.onMasterVolume (value);
+            break;
+            
+        case APC_KNOB_CROSSFADER:
+            view.onCrossfader (value);
             break;
             
         case APC_KNOB_CUE_LEVEL:

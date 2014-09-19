@@ -159,6 +159,12 @@ AbstractView.prototype.onRecArm = function (index, event)
         this.model.getCurrentTrackBank ().toggleArm (index);
 };
 
+AbstractView.prototype.onAorB = function (channel, event)
+{
+    if (event.isDown ())
+        this.model.getCurrentTrackBank ().toggleCrossfadeMode (channel);
+};
+
 AbstractView.prototype.onVolume = function (index, value)
 {
     this.model.getCurrentTrackBank ().setVolume (index, value);
@@ -187,6 +193,11 @@ AbstractView.prototype.onUser = function (event)
         return;
 
     this.surface.setPendingMode (MODE_MACRO);
+};
+
+AbstractView.prototype.onCrossfader = function (value)
+{
+    this.model.getTransport ().setCrossfade (value);
 };
 
 AbstractView.prototype.onMasterVolume = function (value)
