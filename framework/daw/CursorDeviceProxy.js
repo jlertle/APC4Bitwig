@@ -273,7 +273,7 @@ CursorDeviceProxy.prototype.createFXParams = function (count)
             index: i,
             name: '',
             valueStr: '',
-            value: 0,
+            value: 0
         });
     }
     return fxparams;
