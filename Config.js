@@ -29,6 +29,6 @@ Config.notifyListeners = function (property)
     var ls = Config.listeners[property];
     for (var i = 0; i < ls.length; i++)
         ls[i].call (null);
-}
+};
 
 function Config () {}

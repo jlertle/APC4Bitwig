@@ -135,7 +135,6 @@ Controller.prototype.updateIndication = function (mode)
     var isPan = mode == MODE_PAN;
     
     var tb = this.model.getCurrentTrackBank ();
-    var selectedTrack = tb.getSelectedTrack ();
     for (var i = 0; i < 8; i++)
     {
         tb.setPanIndication (i, isPan);

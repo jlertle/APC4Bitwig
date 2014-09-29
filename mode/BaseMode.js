@@ -16,7 +16,7 @@ BaseMode.prototype = new AbstractMode ();
 
 // Abstract
 BaseMode.prototype.setValue = function (index, value) {};
-BaseMode.prototype.getValue = function (index) {};
+BaseMode.prototype.getValue = function (index) { return null; };
 
 
 BaseMode.prototype.onActivate = function ()
@@ -53,14 +53,12 @@ BaseMode.prototype.startCheckKnobMovement = function ()
     {
         this.checkKnobMovement ();
     }), [], 100);
-}
+};
 
 BaseMode.prototype.updateDisplay = function ()
 {
     if (this.isKnobMoving)
         return;
-
-    var tb = this.model.getCurrentTrackBank ();
     for (var i = 0; i < 8; i++)
     {
         var value = this.getValue (i);

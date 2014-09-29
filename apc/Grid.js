@@ -27,13 +27,12 @@ Grid.prototype.lightEx = function (x, y, color, blinkColor, fast)
 Grid.prototype.setLight = function (index, color, blinkColor, fast)
 {
     this.buttonColors[index] = [ color, blinkColor, fast ];
-}
+};
 
 Grid.prototype.flush = function ()
 {
     for (var i = 0; i < this.arraySize; i++)
     {
-        var baseChanged = false;
         if (this.equalsPads (this.currentButtonColors[i], this.buttonColors[i]))
             continue;
         this.currentButtonColors[i] = this.buttonColors[i];
@@ -46,7 +45,6 @@ Grid.prototype.flush = function ()
         }
         else
             this.output.sendNoteEx (i % 8, APC_BUTTON_CLIP_LAUNCH_1 + Math.floor (i / 8), this.buttonColors[i][1] == null ? this.buttonColors[i][0] : this.buttonColors[i][1]);
-        baseChanged = true;
     }
 };
 

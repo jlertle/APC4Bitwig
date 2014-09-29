@@ -62,7 +62,6 @@ PlayView.prototype.updateSceneButtons = function (buttonID)
 PlayView.prototype.updateArrows = function ()
 {
     var tb = this.model.getCurrentTrackBank ();
-    var cd = this.model.getCursorDevice ();
     var sel = tb.getSelectedTrack ();
     this.canScrollLeft = sel != null && sel.index > 0 || tb.canScrollTracksUp ();
     this.canScrollRight = sel != null && sel.index < 7 || tb.canScrollTracksDown ();

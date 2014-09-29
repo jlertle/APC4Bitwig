@@ -66,7 +66,6 @@ DrumView.prototype.onGridNote = function (note, velocity)
     if (x < 4 && y < 3)
     {
         this.selectedPad = 4 * y + x;   // 0-16
-        var playedPad = velocity == 0 ? -1 : this.selectedPad;
         // Mark selected note
         this.pressedKeys[this.offsetY + this.selectedPad] = velocity;
         this.surface.sendMidiEvent (0x90, this.offsetY + this.selectedPad, velocity);
@@ -96,7 +95,7 @@ DrumView.prototype.onScene = function (index, event)
             this.onOctaveDown (event);
             break;
     }
-}
+};
 
 DrumView.prototype.onOctaveDown = function (event)
 {
@@ -154,4 +153,4 @@ DrumView.prototype.clearPressedKeys = function ()
 {
     for (var i = 0; i < 128; i++)
         this.pressedKeys[i] = 0;
-}
+};

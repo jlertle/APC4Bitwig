@@ -415,4 +415,4 @@ AbstractView.prototype.startCheckKnobMovement = function ()
     {
         this.checkKnobMovement ();
     }), [], 100);
-}
+};
