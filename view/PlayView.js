@@ -44,19 +44,22 @@ PlayView.prototype.onActivate = function ()
     AbstractView.prototype.onActivate.call (this);
 
     this.model.getCurrentTrackBank ().setIndication (false);
-    this.updateSceneButtons ();
     this.initMaxVelocity ();
-
-    this.surface.setButton (APC_BUTTON_SCENE_LAUNCH_1, APC_BUTTON_STATE_ON);
-    this.surface.setButton (APC_BUTTON_SCENE_LAUNCH_2, APC_BUTTON_STATE_ON);
-    this.surface.setButton (APC_BUTTON_SCENE_LAUNCH_4, APC_BUTTON_STATE_ON);
-    this.surface.setButton (APC_BUTTON_SCENE_LAUNCH_5, APC_BUTTON_STATE_ON);
+    this.drawSceneButtons ();
 };
 
-PlayView.prototype.updateSceneButtons = function (buttonID)
+PlayView.prototype.drawSceneButtons = function ()
 {
-    for (var i = 0; i < 5; i++)
-        this.surface.setButton (APC_BUTTON_SCENE_LAUNCH_1 + i, APC_COLOR_BLACK);
+    if (this.surface.isShiftPressed ())
+    {
+        AbstractView.prototype.drawSceneButtons.call (this);
+        return;
+    }
+    this.surface.setButton (APC_BUTTON_SCENE_LAUNCH_1, APC_BUTTON_STATE_ON);
+    this.surface.setButton (APC_BUTTON_SCENE_LAUNCH_2, APC_BUTTON_STATE_ON);
+    this.surface.setButton (APC_BUTTON_SCENE_LAUNCH_3, APC_BUTTON_STATE_OFF);
+    this.surface.setButton (APC_BUTTON_SCENE_LAUNCH_4, APC_BUTTON_STATE_ON);
+    this.surface.setButton (APC_BUTTON_SCENE_LAUNCH_5, APC_BUTTON_STATE_ON);
 };
 
 PlayView.prototype.updateArrows = function ()
@@ -91,10 +94,12 @@ PlayView.prototype.onScene = function (scene, event)
     {
         case 0:
             this.scales.nextScale ();
+            Config.setScale (this.scales.getName (this.scales.getSelectedScale ()));
             displayNotification (this.scales.getName (this.scales.getSelectedScale ()));
             break;
         case 1:
             this.scales.prevScale ();
+            Config.setScale (this.scales.getName (this.scales.getSelectedScale ()));
             displayNotification (this.scales.getName (this.scales.getSelectedScale ()));
             break;
         case 3:

@@ -30,10 +30,16 @@ function DrumView (model)
 }
 DrumView.prototype = new AbstractSequencerView ();
 
-DrumView.prototype.onActivate = function ()
+DrumView.prototype.drawSceneButtons = function ()
 {
-    AbstractSequencerView.prototype.onActivate.call (this);
-
+    if (this.surface.isShiftPressed ())
+    {
+        AbstractView.prototype.drawSceneButtons.call (this);
+        return;
+    }
+    this.surface.setButton (APC_BUTTON_SCENE_LAUNCH_1, APC_BUTTON_STATE_OFF);
+    this.surface.setButton (APC_BUTTON_SCENE_LAUNCH_2, APC_BUTTON_STATE_OFF);
+    this.surface.setButton (APC_BUTTON_SCENE_LAUNCH_3, APC_BUTTON_STATE_OFF);
     this.surface.setButton (APC_BUTTON_SCENE_LAUNCH_4, APC_BUTTON_STATE_ON);
     this.surface.setButton (APC_BUTTON_SCENE_LAUNCH_5, APC_BUTTON_STATE_ON);
 };
@@ -63,15 +69,7 @@ DrumView.prototype.onGridNote = function (note, velocity)
     var x = index % 8;
     var y = Math.floor (index / 8);
 
-    if (x < 4 && y < 3)
-    {
-        this.selectedPad = 4 * y + x;   // 0-16
-        // Mark selected note
-        this.pressedKeys[this.offsetY + this.selectedPad] = velocity;
-        this.surface.sendMidiEvent (0x90, this.offsetY + this.selectedPad, velocity);
-        return;
-    }
-    
+    // Sequencer steps
     if (y >= 3)
     {
         if (velocity != 0)
@@ -79,6 +77,36 @@ DrumView.prototype.onGridNote = function (note, velocity)
             var col = 8 * (4 - y) + x;
             this.clip.toggleStep (col, this.offsetY + this.selectedPad, Config.accentActive ? Config.fixedAccentValue : velocity);
         }
+        return;
+    }
+
+    if (x < 4)
+    {
+        this.selectedPad = 4 * y + x;   // 0-16
+        // Mark selected note
+        this.pressedKeys[this.offsetY + this.selectedPad] = velocity;
+        this.surface.sendMidiEvent (0x90, this.offsetY + this.selectedPad, velocity);
+        return;
+    }
+
+    // Clip length/loop area
+    var pad = (2 - y) * 4 + x - 4;
+    if (velocity > 0)   // Button pressed
+    {
+        if (this.loopPadPressed == -1)  // Not yet a button pressed, store it
+            this.loopPadPressed = pad;
+    }
+    else if (this.loopPadPressed != -1)
+    {
+        var start = this.loopPadPressed < pad ? this.loopPadPressed : pad;
+        var end   = (this.loopPadPressed < pad ? pad : this.loopPadPressed) + 1;
+        var quartersPerPad = this.model.getQuartersPerMeasure ();
+        // Set a new loop between the 2 selected pads
+        this.clip.setLoopStart (start * quartersPerPad);
+        this.clip.setLoopLength ((end - start) * quartersPerPad);
+        this.clip.setPlayStart (start * quartersPerPad);
+        this.clip.setPlayEnd (end * quartersPerPad);
+        this.loopPadPressed = -1;
     }
 };
 
@@ -119,7 +147,7 @@ DrumView.prototype.drawGrid = function ()
 {
     var isRecording = this.model.hasRecordingState ();
 
-    // 3x4 Grid
+    // 3x4 Drum Pad Grid
     for (var y = 0; y < 3; y++)
     {
         for (var x = 0; x < 4; x++)
@@ -131,10 +159,14 @@ DrumView.prototype.drawGrid = function ()
         }
     }
     
-    // Clip length/loop
-    for (var x = 4; x < 8; x++)
-        for (var y = 0; y < 3; y++)
-            this.surface.pads.lightEx (x, 4 - y, APC_COLOR_BLACK, null, false);
+    // Clip length/loop area
+    var quartersPerPad = this.model.getQuartersPerMeasure ();
+    var maxQuarters = quartersPerPad * 12;
+    var start = this.clip.getLoopStart ();
+    var loopStartPad = Math.floor (Math.max (0, start) / quartersPerPad);
+    var loopEndPad   = Math.ceil (Math.min (maxQuarters, start + this.clip.getLoopLength ()) / quartersPerPad);
+    for (var pad = 0; pad < 12; pad++)
+        this.surface.pads.lightEx (4 + pad % 4, 2 + Math.floor (pad / 4), pad >= loopStartPad && pad < loopEndPad ? DrumView.COLOR_MEASURE : APC_COLOR_BLACK, null, false);
             
     // Paint the sequencer steps
     var step = this.clip.getCurrentStep ();

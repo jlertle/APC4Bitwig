@@ -82,6 +82,10 @@ function setModelSpecificColors (product)
             Scales.SCALE_COLOR_OCTAVE       = APC_MKII_COLOR_OCEAN_HI;
             Scales.SCALE_COLOR_NOTE         = APC_MKII_COLOR_WHITE;
             Scales.SCALE_COLOR_OUT_OF_SCALE = APC_MKII_COLOR_BLACK;
+            
+            AbstractView.VIEW_SELECTED   = APC_MKII_COLOR_GREEN;
+            AbstractView.VIEW_UNSELECTED = APC_MKII_COLOR_AMBER;
+            AbstractView.VIEW_OFF        = APC_MKII_COLOR_BLACK;
 
             AbstractSessionView.CLIP_COLOR_IS_RECORDING        = { color: APC_MKII_COLOR_RED_HI,   blink: APC_MKII_COLOR_RED_HI,   fast: false };
             AbstractSessionView.CLIP_COLOR_IS_RECORDING_QUEUED = { color: APC_MKII_COLOR_RED_HI,   blink: APC_MKII_COLOR_RED_HI,   fast: true  };
@@ -106,6 +110,7 @@ function setModelSpecificColors (product)
             DrumView.COLOR_SOLO        = APC_MKII_COLOR_BLUE_LO;
             DrumView.COLOR_HAS_CONTENT = APC_MKII_COLOR_YELLOW_HI;
             DrumView.COLOR_NO_CONTENT  = APC_MKII_COLOR_YELLOW_LO;
+            DrumView.COLOR_MEASURE     = APC_MKII_COLOR_WHITE;
             break;
 
         default:
@@ -114,6 +119,10 @@ function setModelSpecificColors (product)
             Scales.SCALE_COLOR_NOTE         = APC_COLOR_BLACK;
             Scales.SCALE_COLOR_OUT_OF_SCALE = APC_COLOR_BLACK;
 
+            AbstractView.VIEW_SELECTED   = APC_COLOR_GREEN;
+            AbstractView.VIEW_UNSELECTED = APC_COLOR_YELLOW;
+            AbstractView.VIEW_OFF        = APC_COLOR_BLACK;
+            
             AbstractSessionView.CLIP_COLOR_IS_RECORDING        = { color: APC_COLOR_RED,    blink: null,                  fast: false };
             AbstractSessionView.CLIP_COLOR_IS_RECORDING_QUEUED = { color: APC_COLOR_RED,    blink: APC_COLOR_RED_BLINK,   fast: false };
             AbstractSessionView.CLIP_COLOR_IS_PLAYING          = { color: APC_COLOR_GREEN,  blink: null,                  fast: false };
@@ -137,6 +146,7 @@ function setModelSpecificColors (product)
             DrumView.COLOR_SOLO        = APC_COLOR_YELLOW;
             DrumView.COLOR_HAS_CONTENT = APC_COLOR_YELLOW;
             DrumView.COLOR_NO_CONTENT  = APC_COLOR_BLACK;
+            DrumView.COLOR_MEASURE     = APC_COLOR_GREEN;
             
             break;
     }

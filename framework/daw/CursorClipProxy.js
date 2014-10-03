@@ -5,9 +5,15 @@
 
 function CursorClipProxy (stepSize, rowSize, clip)
 {
-    this.stepSize = stepSize;
-    this.rowSize = rowSize;
-    this.step = -1;
+    this.stepSize    = stepSize;
+    this.rowSize     = rowSize;
+    this.step        = -1;
+    this.playStart   = 0.0;
+    this.playEnd     = 4.0;
+    this.loopStart   = 0.0;
+    this.loopLength  = 4.0;
+    this.loopEnabled = true;
+    this.shuffle     = true;
 
     this.data = [];
     for (var y = 0; y < this.rowSize; y++)
@@ -16,7 +22,108 @@ function CursorClipProxy (stepSize, rowSize, clip)
     this.clip = host.createCursorClip (this.stepSize, this.rowSize);
     this.clip.addPlayingStepObserver (doObject (this, CursorClipProxy.prototype.handlePlayingStep));
     this.clip.addStepDataObserver (doObject (this, CursorClipProxy.prototype.handleStepData));
+    
+    this.clip.getPlayStart ().addRawValueObserver (doObject (this, CursorClipProxy.prototype.handlePlayStart));
+    this.clip.getPlayStop ().addRawValueObserver (doObject (this, CursorClipProxy.prototype.handlePlayStop));
+    this.clip.getLoopStart ().addRawValueObserver (doObject (this, CursorClipProxy.prototype.handleLoopStart));
+    this.clip.getLoopLength ().addRawValueObserver (doObject (this, CursorClipProxy.prototype.handleLoopLength));
+    this.clip.isLoopEnabled ().addValueObserver (doObject (this, CursorClipProxy.prototype.handleLoopEnabled));
+    this.clip.getShuffle ().addValueObserver (doObject (this, CursorClipProxy.prototype.handleShuffle));
+    // TODO FIX: getAccent () always returns null
+    // this.clip.getAccent ().addValueObserver (Config.maxParameterValue, doObject (this, CursorClipProxy.prototype.handleAccent));
 }
+
+CursorClipProxy.prototype.getPlayStart = function ()
+{
+    return this.playStart;
+};
+
+CursorClipProxy.prototype.setPlayStart = function (start)
+{
+    this.clip.getPlayStart ().setRaw (start);
+};
+
+CursorClipProxy.prototype.changePlayStart = function (value, fractionValue)
+{
+    this.playStart = Math.min (this.playEnd, changeValue (value, this.playStart, fractionValue, Number.MAX_VALUE));
+    this.setPlayStart (this.playStart);
+};
+
+CursorClipProxy.prototype.getPlayEnd = function ()
+{
+    return this.playEnd;
+};
+
+CursorClipProxy.prototype.setPlayEnd = function (end)
+{
+    this.clip.getPlayStop ().setRaw (end);
+};
+
+CursorClipProxy.prototype.changePlayEnd = function (value, fractionValue)
+{
+    this.playEnd = Math.max (this.playStart, changeValue (value, this.playEnd, fractionValue, Number.MAX_VALUE));
+    if (this.loopEnabled)
+        this.playEnd = Math.min (this.loopStart + this.loopLength, this.playEnd);
+    this.setPlayEnd (this.playEnd);
+};
+
+CursorClipProxy.prototype.getLoopStart = function ()
+{
+    return this.loopStart;
+};
+
+CursorClipProxy.prototype.setLoopStart = function (start)
+{
+    this.clip.getLoopStart ().setRaw (start);
+};
+
+CursorClipProxy.prototype.changeLoopStart = function (value, fractionValue)
+{
+    this.loopStart = changeValue (value, this.loopStart, fractionValue, Number.MAX_VALUE);
+    this.setLoopStart (this.loopStart);
+};
+
+CursorClipProxy.prototype.getLoopLength = function ()
+{
+    return this.loopLength;
+};
+
+CursorClipProxy.prototype.setLoopLength = function (length)
+{
+    this.clip.getLoopLength ().setRaw (length);
+};
+
+CursorClipProxy.prototype.changeLoopLength = function (value, fractionValue)
+{
+    this.loopLength = changeValue (value, this.loopLength, fractionValue, Number.MAX_VALUE);
+    this.setLoopLength (this.loopLength);
+};
+
+CursorClipProxy.prototype.isLoopEnabled = function ()
+{
+    return this.loopEnabled;
+};
+
+CursorClipProxy.prototype.setLoopEnabled = function (enable)
+{
+    this.clip.isLoopEnabled ().set (enable);
+};
+
+CursorClipProxy.prototype.isShuffleEnabled = function ()
+{
+    return this.shuffle;
+};
+
+CursorClipProxy.prototype.setShuffleEnabled = function (enable)
+{
+    // TODO FIX broken
+    this.clip.getShuffle ().set (enable);
+};
+
+CursorClipProxy.prototype.getAccent = function ()
+{
+    return "TODO";
+};
 
 CursorClipProxy.prototype.getStepSize = function ()
 {
@@ -89,4 +196,39 @@ CursorClipProxy.prototype.handlePlayingStep = function (step)
 CursorClipProxy.prototype.handleStepData = function (column, row, state)
 {
     this.data[column][row] = state;
+};
+
+CursorClipProxy.prototype.handlePlayStart = function (position)
+{
+    this.playStart = position;
+};
+
+CursorClipProxy.prototype.handlePlayStop = function (position)
+{
+    this.playEnd = position;
+};
+
+CursorClipProxy.prototype.handleLoopStart = function (position)
+{
+    this.loopStart = position;
+};
+
+CursorClipProxy.prototype.handleLoopLength = function (position)
+{
+    this.loopLength = position;
+};
+
+CursorClipProxy.prototype.handleLoopEnabled = function (enabled)
+{
+    this.loopEnabled = enabled;
+};
+
+CursorClipProxy.prototype.handleShuffle = function (enabled)
+{
+    this.shuffle = enabled;
+};
+
+CursorClipProxy.prototype.handleAccent = function (value)
+{
+    // Implement when bug fixed
 };

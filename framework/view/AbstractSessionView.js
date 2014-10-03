@@ -36,16 +36,28 @@ AbstractSessionView.prototype.onActivate = function ()
     this.drawSceneButtons ();
 };
 
-AbstractSessionView.prototype.updateArrows = function ()
+AbstractSessionView.prototype.updateArrowStates = function ()
 {
     var tb = this.model.getCurrentTrackBank ();
-    this.canScrollUp = this.flip ? tb.canScrollTracksUp () : tb.canScrollScenesDown ();
-    this.canScrollDown = this.flip ? tb.canScrollTracksDown () : tb.canScrollScenesUp ();
-    this.canScrollLeft = this.flip ? tb.canScrollScenesDown () : tb.canScrollTracksUp ();
-    this.canScrollRight = this.flip ? tb.canScrollScenesUp () : tb.canScrollTracksDown ();
-    AbstractView.prototype.updateArrows.call (this);
-    // Flipped scene buttons are not updated unless we redraw them here
-    this.drawSceneButtons ();
+    if (this.flip)
+    {
+        var isDevice = this.surface.getCurrentMode () == MODE_BANK_DEVICE || this.surface.getCurrentMode () == MODE_PRESET;
+        var sel = tb.getSelectedTrack ();
+        // var cd = this.model.getCursorDevice ();
+        this.canScrollUp = isDevice ? true /* TODO: Bitwig bug cd.canSelectPreviousFX () */ : sel != null && sel.index > 0 || tb.canScrollTracksUp ();
+        this.canScrollDown = isDevice ? true /* TODO: Bitwig bug cd.canSelectPreviousFX () */ : sel != null && sel.index < 7 || tb.canScrollTracksDown ();
+        this.canScrollLeft = tb.canScrollScenesUp ();
+        this.canScrollRight = tb.canScrollScenesDown ();
+
+        // Flipped scene buttons are not updated unless we redraw them here
+        this.drawSceneButtons ();
+    }
+    else
+    {
+        AbstractView.prototype.updateArrowStates.call (this);
+        this.canScrollUp = tb.canScrollScenesUp ();
+        this.canScrollDown = tb.canScrollScenesDown ();
+    }
 };
 
 // note is expected to be from 36 to 100
@@ -94,54 +106,39 @@ AbstractSessionView.prototype.onGridNote = function (note, velocity)
 
 AbstractSessionView.prototype.scrollLeft = function (event)
 {
-    var tb = this.model.getCurrentTrackBank ();
     if (this.flip)
     {
+        var tb = this.model.getCurrentTrackBank ();
         if (this.surface.isShiftPressed ())
             tb.scrollScenesPageUp ();
         else
             tb.scrollScenesUp ();
     }
     else
-    {
-        if (this.surface.isShiftPressed ())
-            tb.scrollTracksPageUp ();
-        else
-            tb.scrollTracksUp ();
-    }
+        AbstractView.prototype.scrollLeft.call (this, event);
 };
 
 AbstractSessionView.prototype.scrollRight = function (event)
 {
-    var tb = this.model.getCurrentTrackBank ();
     if (this.flip)
     {
+        var tb = this.model.getCurrentTrackBank ();
         if (this.surface.isShiftPressed ())
             tb.scrollScenesPageDown ();
         else
             tb.scrollScenesDown ();
     }
     else
-    {
-        if (this.surface.isShiftPressed ())
-            tb.scrollTracksPageDown ();
-        else
-            tb.scrollTracksDown ();
-    }
+        AbstractView.prototype.scrollRight.call (this, event);
 };
 
 AbstractSessionView.prototype.scrollUp = function (event)
 {
-    var tb = this.model.getCurrentTrackBank ();
     if (this.flip)
-    {
-        if (this.surface.isShiftPressed ())
-            tb.scrollTracksPageUp ();
-        else
-            tb.scrollTracksUp ();
-    }
+        AbstractView.prototype.scrollLeft.call (this, event);
     else
     {
+        var tb = this.model.getCurrentTrackBank ();
         if (this.surface.isShiftPressed ())
             tb.scrollScenesPageUp ();
         else
@@ -151,16 +148,11 @@ AbstractSessionView.prototype.scrollUp = function (event)
 
 AbstractSessionView.prototype.scrollDown = function (event)
 {
-    var tb = this.model.getCurrentTrackBank ();
     if (this.flip)
-    {
-        if (this.surface.isShiftPressed ())
-            tb.scrollTracksPageDown ();
-        else
-            tb.scrollTracksDown ();
-    }
+        AbstractView.prototype.scrollRight.call (this, event);
     else
     {
+        var tb = this.model.getCurrentTrackBank ();
         if (this.surface.isShiftPressed ())
             tb.scrollScenesPageDown ();
         else
@@ -183,20 +175,38 @@ AbstractSessionView.prototype.drawPad = function (slot, x, y, isArmed)
 {
     var color;
     if (slot.isRecording)
-        color = slot.isQueued ? AbstractSessionView.CLIP_COLOR_IS_RECORDING_QUEUED : AbstractSessionView.CLIP_COLOR_IS_RECORDING;
+    {
+        if (slot.isQueued)
+        {
+            if (AbstractSessionView.USE_CLIP_COLOR && slot.color)
+                color = AbstractSessionView.CLIP_COLOR_IS_RECORDING_QUEUED;
+            else
+                color = AbstractSessionView.CLIP_COLOR_IS_RECORDING_QUEUED;
+        }
+        else
+        {
+            if (AbstractSessionView.USE_CLIP_COLOR && slot.color)
+                color = { color: slot.color, blink: AbstractSessionView.CLIP_COLOR_IS_RECORDING.blink, fast: AbstractSessionView.CLIP_COLOR_IS_RECORDING.fast };
+            else
+                color = AbstractSessionView.CLIP_COLOR_IS_RECORDING;
+        }
+    }
     else if (slot.isPlaying)
     {
-        if (AbstractSessionView.USE_CLIP_COLOR && slot.color)
-            color = { color: slot.color, blink: AbstractSessionView.CLIP_COLOR_IS_PLAYING.blink, fast: AbstractSessionView.CLIP_COLOR_IS_PLAYING.fast };
+        if (slot.isQueued)
+        {
+            if (AbstractSessionView.USE_CLIP_COLOR && slot.color)
+                color = AbstractSessionView.CLIP_COLOR_IS_PLAYING_QUEUED;
+            else
+                color = AbstractSessionView.CLIP_COLOR_IS_PLAYING_QUEUED;
+        }
         else
-            color = AbstractSessionView.CLIP_COLOR_IS_PLAYING;
-    }
-    else if (slot.isQueued)
-    {
-        if (AbstractSessionView.USE_CLIP_COLOR && slot.color)
-            color = { color: slot.color, blink: AbstractSessionView.CLIP_COLOR_IS_PLAYING_QUEUED.blink, fast: AbstractSessionView.CLIP_COLOR_IS_PLAYING_QUEUED.fast };
-        else
-            color = AbstractSessionView.CLIP_COLOR_IS_PLAYING_QUEUED;
+        {
+            if (AbstractSessionView.USE_CLIP_COLOR && slot.color)
+                color = { color: slot.color, blink: AbstractSessionView.CLIP_COLOR_IS_PLAYING.blink, fast: AbstractSessionView.CLIP_COLOR_IS_PLAYING.fast };
+            else
+                color = AbstractSessionView.CLIP_COLOR_IS_PLAYING;
+        }
     }
     else if (slot.hasContent)
     {

@@ -19,9 +19,18 @@ SequencerView.prototype.onActivate = function ()
 {
     this.updateScale ();
     AbstractSequencerView.prototype.onActivate.call (this);
+};
 
+SequencerView.prototype.drawSceneButtons = function ()
+{
+    if (this.surface.isShiftPressed ())
+    {
+        AbstractView.prototype.drawSceneButtons.call (this);
+        return;
+    }
     this.surface.setButton (APC_BUTTON_SCENE_LAUNCH_1, APC_BUTTON_STATE_ON);
     this.surface.setButton (APC_BUTTON_SCENE_LAUNCH_2, APC_BUTTON_STATE_ON);
+    this.surface.setButton (APC_BUTTON_SCENE_LAUNCH_3, APC_BUTTON_STATE_OFF);
     this.surface.setButton (APC_BUTTON_SCENE_LAUNCH_4, APC_BUTTON_STATE_ON);
     this.surface.setButton (APC_BUTTON_SCENE_LAUNCH_5, APC_BUTTON_STATE_ON);
 };
@@ -31,7 +40,7 @@ SequencerView.prototype.updateArrows = function ()
     this.canScrollUp = this.offsetY + SequencerView.NUM_OCTAVE <= this.clip.getRowSize () - SequencerView.NUM_OCTAVE;
     this.canScrollDown = this.offsetY - SequencerView.NUM_OCTAVE >= 0;
     this.canScrollLeft = this.offsetX > 0;
-    // this.canScrollRight = true; We do not know the number of steps
+    this.canScrollRight = true; // TODO We do not know the number of steps
     AbstractSequencerView.prototype.updateArrows.call (this);
     this.drawSceneButtons ();
 };
@@ -56,10 +65,12 @@ SequencerView.prototype.onScene = function (scene, event)
     {
         case 0:
             this.scales.nextScale ();
+            Config.setScale (this.scales.getName (this.scales.getSelectedScale ()));
             displayNotification (this.scales.getName (this.scales.getSelectedScale ()));
             break;
         case 1:
             this.scales.prevScale ();
+            Config.setScale (this.scales.getName (this.scales.getSelectedScale ()));
             displayNotification (this.scales.getName (this.scales.getSelectedScale ()));
             break;
         case 3:

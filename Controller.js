@@ -4,13 +4,15 @@
 
 function Controller (product)
 {
+    Config.init ();
+
     var output = new MidiOutput ();
     var input = new APCMidiInput ();
     input.init ();
     
-    var scales = new Scales (36, 100, 8, 8);
+    this.scales = new Scales (36, 100, 8, 8);
     setModelSpecificColors (product);
-    this.model = new Model (null, scales, 8, 5, 8);
+    this.model = new Model (null, this.scales, 8, 5, 8);
     this.model.getTrackBank ().addTrackSelectionListener (doObject (this, function (index, isSelected)
     {
         if (this.surface.isActiveView (VIEW_PLAY))
@@ -34,6 +36,17 @@ function Controller (product)
         this.updateMode (newMode);
     }));
     
+    Config.addPropertyListener (Config.SCALES_SCALE, doObject (this, function ()
+    {
+        this.scales.setScaleByName (Config.scale);
+        this.surface.getActiveView ().updateNoteMapping ();
+    }));
+    Config.addPropertyListener (Config.SCALES_BASE, doObject (this, function ()
+    {
+        this.scales.setScaleOffsetByName (Config.scaleBase);
+        this.surface.getActiveView ().updateNoteMapping ();
+    }));
+
     this.surface.addView (VIEW_PLAY, new PlayView (this.model));
     this.surface.addView (VIEW_SESSION, new SessionView (this.model));
     this.surface.addView (VIEW_SEQUENCER, new SequencerView (this.model));

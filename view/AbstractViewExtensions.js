@@ -32,6 +32,15 @@ AbstractView.prototype.usesButton = function (buttonID)
     return true;
 };
 
+AbstractView.prototype.drawSceneButtons = function ()
+{
+    this.surface.setButton (APC_BUTTON_SCENE_LAUNCH_1, this.surface.isActiveView (VIEW_SESSION) ? AbstractView.VIEW_SELECTED : AbstractView.VIEW_UNSELECTED);
+    this.surface.setButton (APC_BUTTON_SCENE_LAUNCH_2, this.surface.isActiveView (VIEW_PLAY) ? AbstractView.VIEW_SELECTED : AbstractView.VIEW_UNSELECTED);
+    this.surface.setButton (APC_BUTTON_SCENE_LAUNCH_3, this.surface.isActiveView (VIEW_DRUM) ? AbstractView.VIEW_SELECTED : AbstractView.VIEW_UNSELECTED);
+    this.surface.setButton (APC_BUTTON_SCENE_LAUNCH_4, this.surface.isActiveView (VIEW_SEQUENCER) ? AbstractView.VIEW_SELECTED : AbstractView.VIEW_UNSELECTED);
+    this.surface.setButton (APC_BUTTON_SCENE_LAUNCH_5, AbstractView.VIEW_OFF);
+};
+
 //--------------------------------------
 // Transport
 //--------------------------------------
@@ -118,7 +127,10 @@ AbstractView.prototype.onCueLevel = function (value)
     this.model.getTransport ().changePosition (value < 65, this.surface.isShiftPressed ());
 };
 
-AbstractView.prototype.onShift = function (event) {};
+AbstractView.prototype.onShift = function (event)
+{
+    this.drawSceneButtons ();
+};
 
 //--------------------------------------
 // Track
