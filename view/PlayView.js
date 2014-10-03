@@ -158,37 +158,6 @@ PlayView.prototype.scrollDown = function (event)
         this.model.getApplication ().arrowKeyDown ();
 };
 
-PlayView.prototype.scrollLeft = function (event)
-{
-    var tb = this.model.getCurrentTrackBank ();
-    var sel = tb.getSelectedTrack ();
-    var index = sel == null ? 0 : sel.index - 1;
-    if (index == -1)
-    {
-        if (!tb.canScrollTracksUp ())
-            return;
-        tb.scrollTracksPageUp ();
-        scheduleTask (doObject (this, this.selectTrack), [7], 75);
-        return;
-    }
-    this.selectTrack (index);
-};
-
-PlayView.prototype.scrollRight = function (event)
-{
-    var tb = this.model.getCurrentTrackBank ();
-    var sel = tb.getSelectedTrack ();
-    var index = sel == null ? 0 : sel.index + 1;
-    if (index == 8)
-    {
-        if (!tb.canScrollTracksDown ())
-            return;
-        tb.scrollTracksPageDown ();
-        scheduleTask (doObject (this, this.selectTrack), [0], 75);
-    }
-    this.selectTrack (index);
-};
-
 PlayView.prototype.onAccent = function (event)
 {
     AbstractView.prototype.onAccent.call (this, event);

@@ -132,6 +132,40 @@ AbstractView.prototype.onShift = function (event)
     this.drawSceneButtons ();
 };
 
+AbstractView.prototype.scrollLeft = function (event)
+{
+    var tb = this.model.getCurrentTrackBank ();
+    var sel = tb.getSelectedTrack ();
+    var index = sel == null ? 0 : sel.index - 1;
+    if (index == -1 || this.surface.isShiftPressed ())
+    {
+        if (!tb.canScrollTracksUp ())
+            return;
+        tb.scrollTracksPageUp ();
+        var newSel = index == -1 || sel == null ? 7 : sel.index;
+        scheduleTask (doObject (this, this.selectTrack), [ newSel ], 75);
+        return;
+    }
+    this.selectTrack (index);
+};
+
+AbstractView.prototype.scrollRight = function (event)
+{
+    var tb = this.model.getCurrentTrackBank ();
+    var sel = tb.getSelectedTrack ();
+    var index = sel == null ? 0 : sel.index + 1;
+    if (index == 8 || this.surface.isShiftPressed ())
+    {
+        if (!tb.canScrollTracksDown ())
+            return;
+        tb.scrollTracksPageDown ();
+        var newSel = index == 8 || sel == null ? 0 : sel.index;
+        scheduleTask (doObject (this, this.selectTrack), [ newSel ], 75);
+        return;
+    }
+    this.selectTrack (index);
+};
+
 //--------------------------------------
 // Track
 //--------------------------------------

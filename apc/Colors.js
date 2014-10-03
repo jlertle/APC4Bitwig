@@ -120,7 +120,7 @@ function setModelSpecificColors (product)
             Scales.SCALE_COLOR_OUT_OF_SCALE = APC_COLOR_BLACK;
 
             AbstractView.VIEW_SELECTED   = APC_COLOR_GREEN;
-            AbstractView.VIEW_UNSELECTED = APC_COLOR_YELLOW;
+            AbstractView.VIEW_UNSELECTED = APC_COLOR_BLACK;
             AbstractView.VIEW_OFF        = APC_COLOR_BLACK;
             
             AbstractSessionView.CLIP_COLOR_IS_RECORDING        = { color: APC_COLOR_RED,    blink: null,                  fast: false };
