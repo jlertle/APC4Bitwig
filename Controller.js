@@ -12,7 +12,7 @@ function Controller (product)
     
     this.scales = new Scales (36, 100, 8, 8);
     setModelSpecificColors (product);
-    this.model = new Model (null, this.scales, 8, 5, 8);
+    this.model = new Model (1, this.scales, 8, 5, 8);
     this.model.getTrackBank ().addTrackSelectionListener (doObject (this, function (index, isSelected)
     {
         if (this.surface.isActiveView (VIEW_PLAY))
