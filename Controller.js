@@ -13,11 +13,9 @@ function Controller (product)
     this.scales = new Scales (36, 100, 8, 8);
     setModelSpecificColors (product);
     this.model = new Model (1, this.scales, 8, 5, 8);
-    this.model.getTrackBank ().addTrackSelectionListener (doObject (this, function (index, isSelected)
-    {
-        if (this.surface.isActiveView (VIEW_PLAY))
-            this.surface.getActiveView ().updateNoteMapping ();
-    }));
+    
+    this.lastSlotSelection = null;
+    this.model.getTrackBank ().addTrackSelectionListener (doObject (this, Controller.prototype.handleTrackChange));
     
     this.surface = new APC (output, input, product);
     for (var i = 0; i < 8; i++)
@@ -51,6 +49,7 @@ function Controller (product)
     this.surface.addView (VIEW_SESSION, new SessionView (this.model));
     this.surface.addView (VIEW_SEQUENCER, new SequencerView (this.model));
     this.surface.addView (VIEW_DRUM, new DrumView (this.model));
+    this.surface.addView (VIEW_RAINDROPS, new RaindropsView (this.model));
     
     this.surface.setActiveView (VIEW_SESSION);
     this.surface.setPendingMode (MODE_PAN);
@@ -179,5 +178,34 @@ Controller.prototype.updateDeviceKnobs = function ()
     {
         var value = cd.getFXParam (i).value;
         this.surface.setLED (APC_KNOB_DEVICE_KNOB_1 + i, value ? value : 0);
+    }
+};
+
+Controller.prototype.handleTrackChange = function (index, isSelected)
+{
+    var tb = this.model.getCurrentTrackBank ();
+    if (!isSelected)
+    {
+        this.lastSlotSelection = tb.getSelectedSlot (index);
+        return;
+    }
+
+    // Recall last used view (if we are not in session mode)
+    if (!this.surface.isActiveView (VIEW_SESSION))
+    {
+        var viewID = tb.getPreferredView (index);
+        this.surface.setActiveView (viewID == null ? VIEW_PLAY : viewID);
+    }
+
+    if (this.surface.isActiveView (VIEW_PLAY))
+        this.surface.getActiveView ().updateNoteMapping ();
+     
+    // Select the slot on the new track with the same index as on the previous track
+    if (this.lastSlotSelection != null)
+        tb.showClipInEditor (index, this.lastSlotSelection.index);
+    else
+    {
+        var slot = tb.getSelectedSlot (index);
+        tb.showClipInEditor (index, slot != null ? slot.index : 0);
     }
 };

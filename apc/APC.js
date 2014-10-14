@@ -476,18 +476,7 @@ APC.prototype.handleEvent = function (note, value, channel)
         case APC_BUTTON_SCENE_LAUNCH_4:
         case APC_BUTTON_SCENE_LAUNCH_5:
             if (this.isShiftPressed ())
-            {
-                if (!event.isDown ())
-                    return;
-                    
-                // Free button for another view
-                if (note == APC_BUTTON_SCENE_LAUNCH_5)
-                    return;
-                    
-                this.setActiveView (VIEW_SESSION + note - APC_BUTTON_SCENE_LAUNCH_1);
-                // Refresh mode button lights
-                this.setPendingMode (this.getCurrentMode ());
-            }
+                view.onShiftScene (note - APC_BUTTON_SCENE_LAUNCH_1, event);
             else
                 view.onScene (note - APC_BUTTON_SCENE_LAUNCH_1, event);
             break;

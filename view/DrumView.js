@@ -17,6 +17,8 @@ function DrumView (model)
     this.pressedKeys = initArray (0, 128);
     this.noteMap = this.scales.getEmptyMatrix ();
 
+    this.loopPadPressed = -1;
+
     var tb = model.getTrackBank ();
     tb.addNoteListener (doObject (this, function (pressed, note, velocity)
     {
@@ -47,14 +49,12 @@ DrumView.prototype.drawSceneButtons = function ()
 DrumView.prototype.updateArrows = function ()
 {
     this.canScrollLeft = this.offsetX > 0;
-    // this.canScrollRight = true; We do not know the number of steps
-    AbstractSequencerView.prototype.updateArrows.call (this);
+    this.canScrollRight = true; // We do not know the number of steps
 };
 
 DrumView.prototype.updateNoteMapping = function ()
 {
-    var t = this.model.getCurrentTrackBank ().getSelectedTrack ();
-    this.noteMap = t != null && t.canHoldNotes && !this.surface.isSelectPressed () ? this.scales.getDrumMatrix () : this.scales.getEmptyMatrix ();
+    this.noteMap = this.canSelectedTrackHoldNotes () && !this.surface.isSelectPressed () ? this.scales.getDrumMatrix () : this.scales.getEmptyMatrix ();
     this.surface.setKeyTranslationTable (this.noteMap);
 };
 
@@ -65,6 +65,9 @@ DrumView.prototype.onSelect = function (event)
 
 DrumView.prototype.onGridNote = function (note, velocity)
 {
+    if (!this.canSelectedTrackHoldNotes ())
+        return;
+
     var index = note - 36;
     var x = index % 8;
     var y = Math.floor (index / 8);
@@ -101,11 +104,13 @@ DrumView.prototype.onGridNote = function (note, velocity)
         var start = this.loopPadPressed < pad ? this.loopPadPressed : pad;
         var end   = (this.loopPadPressed < pad ? pad : this.loopPadPressed) + 1;
         var quartersPerPad = this.model.getQuartersPerMeasure ();
+
         // Set a new loop between the 2 selected pads
-        this.clip.setLoopStart (start * quartersPerPad);
+        var newStart = start * quartersPerPad;
+        this.clip.setLoopStart (newStart);
         this.clip.setLoopLength ((end - start) * quartersPerPad);
-        this.clip.setPlayStart (start * quartersPerPad);
-        this.clip.setPlayEnd (end * quartersPerPad);
+        this.clip.setPlayRange (newStart, end * quartersPerPad);
+
         this.loopPadPressed = -1;
     }
 };
@@ -145,6 +150,12 @@ DrumView.prototype.onOctaveUp = function (event)
 
 DrumView.prototype.drawGrid = function ()
 {
+    if (!this.canSelectedTrackHoldNotes ())
+    {
+        this.surface.pads.turnOff ();
+        return;
+    }
+
     var isRecording = this.model.hasRecordingState ();
 
     // 3x4 Drum Pad Grid

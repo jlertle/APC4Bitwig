@@ -38,7 +38,7 @@ AbstractView.prototype.drawSceneButtons = function ()
     this.surface.setButton (APC_BUTTON_SCENE_LAUNCH_2, this.surface.isActiveView (VIEW_PLAY) ? AbstractView.VIEW_SELECTED : AbstractView.VIEW_UNSELECTED);
     this.surface.setButton (APC_BUTTON_SCENE_LAUNCH_3, this.surface.isActiveView (VIEW_DRUM) ? AbstractView.VIEW_SELECTED : AbstractView.VIEW_UNSELECTED);
     this.surface.setButton (APC_BUTTON_SCENE_LAUNCH_4, this.surface.isActiveView (VIEW_SEQUENCER) ? AbstractView.VIEW_SELECTED : AbstractView.VIEW_UNSELECTED);
-    this.surface.setButton (APC_BUTTON_SCENE_LAUNCH_5, AbstractView.VIEW_OFF);
+    this.surface.setButton (APC_BUTTON_SCENE_LAUNCH_5, this.surface.isActiveView (VIEW_RAINDROPS) ? AbstractView.VIEW_SELECTED : AbstractView.VIEW_UNSELECTED);
 };
 
 //--------------------------------------
@@ -130,6 +130,18 @@ AbstractView.prototype.onCueLevel = function (value)
 AbstractView.prototype.onShift = function (event)
 {
     this.drawSceneButtons ();
+};
+
+AbstractView.prototype.onShiftScene = function (index, event)
+{
+    if (!event.isDown ())
+        return;
+    var viewID = VIEW_SESSION + index;
+    if (viewID != VIEW_SESSION)
+        this.model.getCurrentTrackBank ().setPreferredView (viewID);
+    this.surface.setActiveView (viewID);
+    // Refresh mode button lights
+    this.surface.setPendingMode (this.surface.getCurrentMode ());
 };
 
 AbstractView.prototype.scrollLeft = function (event)
@@ -461,4 +473,10 @@ AbstractView.prototype.startCheckKnobMovement = function ()
     {
         this.checkKnobMovement ();
     }), [], 100);
+};
+
+AbstractView.prototype.canSelectedTrackHoldNotes = function ()
+{
+    var t = this.model.getCurrentTrackBank ().getSelectedTrack ();
+    return t != null && t.canHoldNotes;
 };

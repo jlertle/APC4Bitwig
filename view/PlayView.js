@@ -33,8 +33,7 @@ PlayView.prototype = new AbstractView ();
 
 PlayView.prototype.updateNoteMapping = function ()
 {
-    var t = this.model.getCurrentTrackBank ().getSelectedTrack ();
-    this.noteMap = t != null && t.canHoldNotes ? this.scales.getNoteMatrix () : this.scales.getEmptyMatrix ();
+    this.noteMap = this.canSelectedTrackHoldNotes () ? this.scales.getNoteMatrix () : this.scales.getEmptyMatrix ();
     // Workaround: https://github.com/git-moss/Push4Bitwig/issues/7
     scheduleTask (doObject (this, function () { this.surface.setKeyTranslationTable (this.noteMap); }), null, 100);
 };
@@ -74,8 +73,7 @@ PlayView.prototype.updateArrows = function ()
 
 PlayView.prototype.drawGrid = function ()
 {
-    var t = this.model.getCurrentTrackBank ().getSelectedTrack ();
-    var isKeyboardEnabled = t != null && t.canHoldNotes;
+    var isKeyboardEnabled = this.canSelectedTrackHoldNotes ();
     var isRecording = this.model.hasRecordingState ();
 
     for (var i = 36; i < 76; i++)
@@ -114,8 +112,7 @@ PlayView.prototype.onScene = function (scene, event)
 
 PlayView.prototype.onGridNote = function (note, velocity)
 {
-    var t = this.model.getCurrentTrackBank ().getSelectedTrack ();
-    if (t == null || !t.canHoldNotes)
+    if (!this.canSelectedTrackHoldNotes ())
         return;
 
     this.surface.sendMidiEvent (0x90, this.noteMap[note], velocity);

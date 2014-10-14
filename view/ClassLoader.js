@@ -7,6 +7,7 @@ var VIEW_SESSION   = 0;
 var VIEW_PLAY      = 1;
 var VIEW_DRUM      = 2;
 var VIEW_SEQUENCER = 3;
+var VIEW_RAINDROPS = 4;
 
 load ("AbstractViewExtensions.js");
 load ("PlayView.js");
@@ -14,3 +15,4 @@ load ("SessionView.js");
 load ("AbstractSequencerView.js");
 load ("SequencerView.js");
 load ("DrumView.js");
+load ("RaindropsView.js");
