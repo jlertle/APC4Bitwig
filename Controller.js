@@ -6,6 +6,8 @@ function Controller (product)
 {
     Config.init ();
 
+    var i = 0;
+    
     var output = new MidiOutput ();
     var input = new APCMidiInput ();
     input.init ();
@@ -18,13 +20,13 @@ function Controller (product)
     this.model.getTrackBank ().addTrackSelectionListener (doObject (this, Controller.prototype.handleTrackChange));
     
     this.surface = new APC (output, input, product);
-    for (var i = 0; i < 8; i++)
+    for (i = 0; i < 8; i++)
         this.surface.setLED (APC_KNOB_DEVICE_KNOB_LED_1 + i, 1);
 
     this.surface.setDefaultMode (MODE_PAN);
 
     this.surface.addMode (MODE_PAN, new PanMode (this.model));
-    for (var i = 0; i < 8; i++)
+    for (i = 0; i < 8; i++)
         this.surface.addMode (MODE_SEND1 + i, new SendMode (this.model, i));
     this.surface.addMode (MODE_MACRO, new MacroMode (this.model));
 
