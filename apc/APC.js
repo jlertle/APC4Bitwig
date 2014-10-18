@@ -347,10 +347,7 @@ APC.prototype.handleEvent = function (note, value, channel)
             break;
             
         case APC_BUTTON_ACTIVATOR:
-            if (this.isShiftPressed ())
-                view.onAorB (channel, event);
-            else
-                view.onActivator (channel, event);
+            view.onActivator (channel, event);
             break;
             
         case APC_BUTTON_A_B:
@@ -360,9 +357,12 @@ APC.prototype.handleEvent = function (note, value, channel)
         case APC_BUTTON_SOLO:
             view.onSolo (channel, event);
             break;
-            
+
         case APC_BUTTON_RECORD_ARM:
-            view.onRecArm (channel, event);
+            if (this.isShiftPressed () && !this.isMkII ())
+                view.onAorB (channel, event);
+            else
+                view.onRecArm (channel, event);
             break;
             
         case APC_BUTTON_PAN:

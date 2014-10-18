@@ -61,6 +61,8 @@ Controller.prototype = new AbstractController ();
 Controller.prototype.flush = function ()
 {
     AbstractController.prototype.flush.call (this);
+    
+    var isShift = this.surface.isShiftPressed ();
 
     var t = this.model.getTransport ();
     this.surface.setButton (APC_BUTTON_PLAY, t.isPlaying ? APC_BUTTON_STATE_ON : APC_BUTTON_STATE_OFF);
@@ -74,19 +76,20 @@ Controller.prototype.flush = function ()
     {
         var track = tb.getTrack (i);
         this.surface.setButtonEx (APC_BUTTON_TRACK_SELECTION, i, i == selIndex ? APC_BUTTON_STATE_ON : APC_BUTTON_STATE_OFF);
-        this.surface.setButtonEx (APC_BUTTON_SOLO, i, track.exists && track.solo ? APC_BUTTON_STATE_ON : APC_BUTTON_STATE_OFF);
-        this.surface.setButtonEx (APC_BUTTON_RECORD_ARM, i, track.exists && track.recarm ? APC_BUTTON_STATE_ON : APC_BUTTON_STATE_OFF);
+        this.surface.setButtonEx (APC_BUTTON_SOLO, i, track.exists && (isShift ? track.autoMonitor : track.solo) ? APC_BUTTON_STATE_ON : APC_BUTTON_STATE_OFF);
+        this.surface.setButtonEx (APC_BUTTON_ACTIVATOR, i, track.exists && (isShift ? track.monitor : !track.mute) ? APC_BUTTON_STATE_ON : APC_BUTTON_STATE_OFF);
+
         if (this.surface.isMkII ())
         {
-            this.surface.setButtonEx (APC_BUTTON_ACTIVATOR, i, track.exists && !track.mute ? APC_BUTTON_STATE_ON : APC_BUTTON_STATE_OFF);
-            this.surface.setButtonEx (APC_BUTTON_A_B, i, track.exists && track.crossfadeMode != 'AB' ? (track.crossfadeMode == 'A' ? APC_BUTTON_STATE_ON : APC_BUTTON_STATE_BLINK) : APC_MKII_COLOR_BLACK);
+            this.surface.setButtonEx (APC_BUTTON_A_B, i, track.exists && track.crossfadeMode != 'AB' ? (track.crossfadeMode == 'A' ? APC_BUTTON_STATE_ON : APC_BUTTON_STATE_BLINK) : APC_BUTTON_STATE_OFF);
+            this.surface.setButtonEx (APC_BUTTON_RECORD_ARM, i, track.exists && track.recarm ? APC_BUTTON_STATE_ON : APC_BUTTON_STATE_OFF);
         }
         else
         {
-            if (this.surface.isShiftPressed ())
-                this.surface.setButtonEx (APC_BUTTON_ACTIVATOR, i, track.exists && track.crossfadeMode != 'AB' ? (track.crossfadeMode == 'A' ? APC_BUTTON_STATE_ON : APC_BUTTON_STATE_BLINK) : APC_MKII_COLOR_BLACK);
+            if (isShift)
+                this.surface.setButtonEx (APC_BUTTON_RECORD_ARM, i, track.exists && track.crossfadeMode != 'AB' ? (track.crossfadeMode == 'A' ? APC_BUTTON_STATE_ON : APC_BUTTON_STATE_BLINK) : APC_BUTTON_STATE_OFF);
             else
-                this.surface.setButtonEx (APC_BUTTON_ACTIVATOR, i, track.exists && !track.mute ? APC_BUTTON_STATE_ON : APC_BUTTON_STATE_OFF);
+                this.surface.setButtonEx (APC_BUTTON_RECORD_ARM, i, track.exists && track.recarm ? APC_BUTTON_STATE_ON : APC_BUTTON_STATE_OFF);
         }
     }
     this.surface.setButton (APC_BUTTON_MASTER, this.model.getMasterTrack ().isSelected () ? APC_BUTTON_STATE_ON : APC_BUTTON_STATE_OFF);

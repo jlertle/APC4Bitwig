@@ -201,13 +201,21 @@ AbstractView.prototype.onSelectTrack = function (index, event)
 
 AbstractView.prototype.onActivator = function (index, event)
 {
-    if (event.isDown ())
+    if (!event.isDown ())
+        return;
+    if (this.surface.isShiftPressed ())
+        this.model.getCurrentTrackBank ().toggleMonitor (index);
+    else
         this.model.getCurrentTrackBank ().toggleMute (index);
 };
 
 AbstractView.prototype.onSolo = function (index, event)
 {
-    if (event.isDown ())
+    if (!event.isDown ())
+        return;
+    if (this.surface.isShiftPressed ())
+        this.model.getCurrentTrackBank ().toggleAutoMonitor (index);
+    else
         this.model.getCurrentTrackBank ().toggleSolo (index);
 };
 
