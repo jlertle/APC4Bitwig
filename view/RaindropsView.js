@@ -43,8 +43,8 @@ RaindropsView.prototype.drawSceneButtons = function ()
     this.surface.setButton (APC_BUTTON_SCENE_LAUNCH_1, APC_BUTTON_STATE_ON);
     this.surface.setButton (APC_BUTTON_SCENE_LAUNCH_2, APC_BUTTON_STATE_ON);
     this.surface.setButton (APC_BUTTON_SCENE_LAUNCH_3, APC_BUTTON_STATE_OFF);
-    this.surface.setButton (APC_BUTTON_SCENE_LAUNCH_4, APC_BUTTON_STATE_OFF);
-    this.surface.setButton (APC_BUTTON_SCENE_LAUNCH_5, APC_BUTTON_STATE_OFF);
+    this.surface.setButton (APC_BUTTON_SCENE_LAUNCH_4, APC_BUTTON_STATE_ON);
+    this.surface.setButton (APC_BUTTON_SCENE_LAUNCH_5, APC_BUTTON_STATE_ON);
 };
 
 RaindropsView.prototype.updateNoteMapping = function ()
@@ -99,8 +99,10 @@ RaindropsView.prototype.onScene = function (index, event)
             displayNotification (this.scales.getName (this.scales.getSelectedScale ()));
             break;
         case 3:
+            this.scrollRight (event);
             break;
         case 4:
+            this.scrollLeft (event);
             break;
     }
     this.updateNoteMapping ();

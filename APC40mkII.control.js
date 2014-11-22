@@ -13,7 +13,7 @@ load ("Controller.js");
 // This is the only global variable, do not use it.
 var controller = null;
 
-host.defineController ("Akai", "APC40mkII", "2.0", "14787D10-35DE-11E4-8C21-0800200C9A66", "Jürgen Moßgraber");
+host.defineController ("Akai", "APC40mkII", "2.1", "14787D10-35DE-11E4-8C21-0800200C9A66", "Jürgen Moßgraber");
 host.defineMidiPorts (1, 1);
 host.defineSysexIdentityReply ("F0 7E ?? 06 02 47 29 00 19 ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? F7");
 
