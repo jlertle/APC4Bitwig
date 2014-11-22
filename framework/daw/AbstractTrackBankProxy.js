@@ -42,7 +42,6 @@ TrackState =
 
 AbstractTrackBankProxy.OBSERVED_TRACKS = 256;
 
-
 function AbstractTrackBankProxy (numTracks, numScenes, numSends)
 {
     if (!numTracks)
@@ -53,9 +52,8 @@ function AbstractTrackBankProxy (numTracks, numScenes, numSends)
     this.numSends = numSends;
 
     this.numDevices = 8;
-    this.deviceBanks = [];
 
-    this.textLength = 8;
+    this.textLength = GlobalConfig.TRACK_BANK_TEXT_LENGTH;
 
     this.canScrollTracksUpFlag   = false;
     this.canScrollTracksDownFlag = false;
@@ -96,6 +94,7 @@ AbstractTrackBankProxy.prototype.init = function ()
         t.addNameObserver (this.textLength, '', doObjectIndex (this, i, AbstractTrackBankProxy.prototype.handleName));
         t.addIsSelectedObserver (doObjectIndex (this, i, AbstractTrackBankProxy.prototype.handleBankTrackSelection));
         t.addVuMeterObserver (Config.maxParameterValue, -1, true, doObjectIndex (this, i, AbstractTrackBankProxy.prototype.handleVUMeters));
+        t.addColorObserver (doObjectIndex (this, i, AbstractTrackBankProxy.prototype.handleColor));
 
         t.exists ().addValueObserver (doObjectIndex (this, i, AbstractTrackBankProxy.prototype.handleExists));
         t.getMute ().addValueObserver (doObjectIndex (this, i, AbstractTrackBankProxy.prototype.handleMute));
@@ -118,14 +117,14 @@ AbstractTrackBankProxy.prototype.init = function ()
 
         // Slot content changes
         var cs = t.getClipLauncherSlots ();
+        cs.addNameObserver (doObjectIndex (this, i, AbstractTrackBankProxy.prototype.handleSlotName));
         cs.addIsSelectedObserver (doObjectIndex (this, i, AbstractTrackBankProxy.prototype.handleSlotSelection));
         cs.addHasContentObserver (doObjectIndex (this, i, AbstractTrackBankProxy.prototype.handleSlotHasContent));
-        cs.addColorObserver (doObjectIndex (this, i, AbstractTrackBankProxy.prototype.handleSlotColor));
         cs.addPlaybackStateObserver (doObjectIndex (this, i, AbstractTrackBankProxy.prototype.handlePlaybackState));
-        
+        cs.addColorObserver (doObjectIndex (this, i, AbstractTrackBankProxy.prototype.handleSlotColor));
+
         // Devices on the track
         var bank = t.createDeviceBank (this.numDevices);
-        // TODO this.deviceBanks.push (bank);
         for (var j = 0; j < this.numDevices; j++)
         {
             var device = bank.getDevice (j);
@@ -461,7 +460,18 @@ AbstractTrackBankProxy.prototype.getClipLauncherScenes = function ()
     return this.trackBank.getClipLauncherScenes ();
 };
 
-AbstractTrackBankProxy.prototype.getColorIndex = function (red, green, blue)
+AbstractTrackBankProxy.getColorEntry = function (colorId)
+{
+    for (var i = 0; i < AbstractTrackBankProxy.COLORS.length; i++)
+    {
+        var color = AbstractTrackBankProxy.COLORS[i];
+        if (color[3] == colorId)
+            return color;
+    }
+    return null;
+};
+
+AbstractTrackBankProxy.getColorIndex = function (red, green, blue)
 {
     for (var i = 0; i < AbstractTrackBankProxy.COLORS.length; i++)
     {
@@ -508,6 +518,7 @@ AbstractTrackBankProxy.prototype.createTracks = function (count)
             volume: 0,
             panStr: '',
             pan: 0,
+            color: 0,
             vu: 0,
             mute: false,
             solo: false,
@@ -567,6 +578,11 @@ AbstractTrackBankProxy.prototype.handleName = function (index, name)
 AbstractTrackBankProxy.prototype.handleVUMeters = function (index, value)
 {
     this.tracks[index].vu = value;
+};
+
+AbstractTrackBankProxy.prototype.handleColor = function (index, red, green, blue)
+{
+    this.tracks[index].color = AbstractTrackBankProxy.getColorIndex (red, green, blue);
 };
 
 AbstractTrackBankProxy.prototype.handleExists = function (index, exists)
@@ -629,6 +645,15 @@ AbstractTrackBankProxy.prototype.handleCanHoldNotes = function (index, canHoldNo
     this.tracks[index].canHoldNotes = canHoldNotes;
 };
 
+//--------------------------------------
+// Slots Handlers
+//--------------------------------------
+
+AbstractTrackBankProxy.prototype.handleSlotName = function (index, slot, name)
+{
+    this.tracks[index].slots[slot].name = name;
+};
+
 AbstractTrackBankProxy.prototype.handleSlotSelection = function (index, slot, isSelected)
 {
     this.tracks[index].slots[slot].isSelected = isSelected;
@@ -641,7 +666,7 @@ AbstractTrackBankProxy.prototype.handleSlotHasContent = function (index, slot, h
 
 AbstractTrackBankProxy.prototype.handleSlotColor = function (index, slot, red, green, blue)
 {
-    this.tracks[index].slots[slot].color = this.getColorIndex (red, green, blue);
+    this.tracks[index].slots[slot].color = AbstractTrackBankProxy.getColorIndex (red, green, blue);
 };
 
 AbstractTrackBankProxy.prototype.handlePlaybackState = function (index, slot, state, isQueued)
@@ -682,6 +707,6 @@ AbstractTrackBankProxy.prototype.handleCanScrollScenesDown = function (canScroll
 
 AbstractTrackBankProxy.prototype.handleDeviceName = function (index, device, name)
 {
-    // TODO
+    // TODO works
     // println(index+":"+ device+":"+ name);
 };

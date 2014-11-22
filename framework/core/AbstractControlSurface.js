@@ -223,6 +223,11 @@ AbstractControlSurface.prototype.getPreviousMode = function ()
     return this.previousMode;
 };
 
+AbstractControlSurface.prototype.restoreMode = function ()
+{
+    this.setPendingMode (this.previousMode);
+};
+
 AbstractControlSurface.prototype.getCurrentMode = function ()
 {
     return this.currentMode;
