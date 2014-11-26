@@ -103,14 +103,15 @@ function setModelSpecificColors (product)
             AbstractSequencerView.COLOR_NO_CONTENT              = APC_MKII_COLOR_BLACK;
             AbstractSequencerView.COLOR_CONTENT                 = APC_MKII_COLOR_BLUE_HI;
  
-            DrumView.COLOR_RECORD      = APC_MKII_COLOR_RED_HI;
-            DrumView.COLOR_PLAY        = APC_MKII_COLOR_GREEN_HI;
-            DrumView.COLOR_SELECTED    = APC_MKII_COLOR_BLUE_HI;
-            DrumView.COLOR_MUTED       = APC_MKII_COLOR_AMBER_LO;
-            DrumView.COLOR_SOLO        = APC_MKII_COLOR_BLUE_LO;
-            DrumView.COLOR_HAS_CONTENT = APC_MKII_COLOR_YELLOW_HI;
-            DrumView.COLOR_NO_CONTENT  = APC_MKII_COLOR_YELLOW_LO;
-            DrumView.COLOR_MEASURE     = APC_MKII_COLOR_WHITE;
+            DrumView.COLOR_RECORD         = APC_MKII_COLOR_RED_HI;
+            DrumView.COLOR_PLAY           = APC_MKII_COLOR_GREEN_HI;
+            DrumView.COLOR_SELECTED       = APC_MKII_COLOR_BLUE_HI;
+            DrumView.COLOR_MUTED          = APC_MKII_COLOR_AMBER_LO;
+            DrumView.COLOR_SOLO           = APC_MKII_COLOR_BLUE_LO;
+            DrumView.COLOR_HAS_CONTENT    = APC_MKII_COLOR_YELLOW_HI;
+            DrumView.COLOR_NO_CONTENT     = APC_MKII_COLOR_YELLOW_LO;
+            DrumView.COLOR_MEASURE        = APC_MKII_COLOR_WHITE;
+            DrumView.COLOR_ACTIVE_MEASURE = APC_MKII_COLOR_GREEN_HI;
             break;
 
         default:
@@ -139,14 +140,15 @@ function setModelSpecificColors (product)
             AbstractSequencerView.COLOR_NO_CONTENT              = APC_COLOR_BLACK;
             AbstractSequencerView.COLOR_CONTENT                 = APC_COLOR_RED;
             
-            DrumView.COLOR_RECORD      = APC_COLOR_RED;
-            DrumView.COLOR_PLAY        = APC_COLOR_GREEN;
-            DrumView.COLOR_SELECTED    = APC_COLOR_YELLOW_BLINK;
-            DrumView.COLOR_MUTED       = APC_COLOR_BLACK;
-            DrumView.COLOR_SOLO        = APC_COLOR_YELLOW;
-            DrumView.COLOR_HAS_CONTENT = APC_COLOR_YELLOW;
-            DrumView.COLOR_NO_CONTENT  = APC_COLOR_BLACK;
-            DrumView.COLOR_MEASURE     = APC_COLOR_GREEN;
+            DrumView.COLOR_RECORD         = APC_COLOR_RED;
+            DrumView.COLOR_PLAY           = APC_COLOR_GREEN;
+            DrumView.COLOR_SELECTED       = APC_COLOR_YELLOW_BLINK;
+            DrumView.COLOR_MUTED          = APC_COLOR_BLACK;
+            DrumView.COLOR_SOLO           = APC_COLOR_YELLOW;
+            DrumView.COLOR_HAS_CONTENT    = APC_COLOR_YELLOW;
+            DrumView.COLOR_NO_CONTENT     = APC_COLOR_BLACK;
+            DrumView.COLOR_MEASURE        = APC_COLOR_GREEN;
+            DrumView.COLOR_ACTIVE_MEASURE = APC_COLOR_YELLOW;
             
             break;
     }
