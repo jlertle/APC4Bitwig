@@ -3,8 +3,10 @@
 // (c) 2014
 // Licensed under LGPLv3 - http://www.gnu.org/licenses/lgpl-3.0.txt
 
-function CursorDeviceProxy (numSends)
+function CursorDeviceProxy (cursorDevice, numSends)
 {
+    this.cursorDevice = cursorDevice;
+
     this.numSends = numSends;
     this.numParams = 8;
     this.numDeviceLayers = 8;
@@ -50,7 +52,6 @@ function CursorDeviceProxy (numSends)
     this.deviceBanks = [];
 
     this.isMacroMappings = initArray (false, this.numParams);
-    this.cursorDevice = host.createEditorCursorDevice ();
 
     this.cursorDevice.addIsEnabledObserver (doObject (this, CursorDeviceProxy.prototype.handleIsEnabled));
     this.cursorDevice.addPositionObserver (doObject (this, CursorDeviceProxy.prototype.handlePosition));
@@ -151,6 +152,10 @@ function CursorDeviceProxy (numSends)
         }
 
         this.deviceBanks[i] = layer.createDeviceBank (this.numDevicesInBank);
+        for (var j = 0; j < this.numDevicesInBank; j++)
+        {
+            this.deviceBanks[i].getDevice (j).addNameObserver (this.textLength, '', doObjectDoubleIndex (this, i, j, CursorDeviceProxy.prototype.handleDeviceName));
+        }
     }
     
     // Monitor the drum pad layers of a container device (if any)
@@ -334,9 +339,15 @@ CursorDeviceProxy.prototype.toggleEnabledState = function ()
     return this.cursorDevice.toggleEnabledState ();
 };
 
-//--------------------------------------
-// Bitwig CursorDevice API
-//--------------------------------------
+CursorDeviceProxy.prototype.canSelectPreviousFX = function ()
+{
+    return this.canSelectPrevious;
+};
+
+CursorDeviceProxy.prototype.canSelectNextFX = function ()
+{
+    return this.canSelectNext;
+};
 
 CursorDeviceProxy.prototype.selectNext = function ()
 {
@@ -348,9 +359,14 @@ CursorDeviceProxy.prototype.selectPrevious = function ()
     return this.cursorDevice.selectPrevious ();
 };
 
-//--------------------------------------
-// Public API
-//--------------------------------------
+CursorDeviceProxy.prototype.selectSibling = function (index)
+{
+    // TODO Requires API change - Very bad workaround
+    for (var i = 0; i < 8; i++)
+        this.cursorDevice.selectPrevious ();
+    for (var i = 0; i < index; i++)
+        this.cursorDevice.selectNext ();
+};
 
 CursorDeviceProxy.prototype.hasSelectedDevice = function ()
 {
@@ -524,16 +540,6 @@ CursorDeviceProxy.prototype.toggleLayerMute = function (index)
 CursorDeviceProxy.prototype.toggleLayerSolo = function (index)
 {
     this.layerBank.getChannel (index).getSolo ().set (!this.getLayer (index).solo);
-};
-
-CursorDeviceProxy.prototype.canSelectPreviousFX = function ()
-{
-    return this.canSelectPrevious;
-};
-
-CursorDeviceProxy.prototype.canSelectNextFX = function ()
-{
-    return this.canSelectNext;
 };
 
 CursorDeviceProxy.prototype.hasPreviousParameterPage = function ()
@@ -943,6 +949,11 @@ CursorDeviceProxy.prototype.handleDrumPadColor = function (index, red, green, bl
 {
     this.drumPadLayers[index].color = AbstractTrackBankProxy.getColorIndex (red, green, blue);
 // TODO println(index+" color:"+this.drumPadLayers[index].color);
+};
+
+CursorDeviceProxy.prototype.handleDeviceName = function (index1, index2, text)
+{
+// TODO     println(index1+":"+ index2+":"+ text);
 };
 
 //--------------------------------------
